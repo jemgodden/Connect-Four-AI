@@ -31,7 +31,9 @@ To currently run the program, no external libraries are required.
 
 The easiest way to use the program currently is to call it from the command line using:
 
-python Game.py
+```sh
+python ConnectFour/Game.py
+```
 
 # Log
 
