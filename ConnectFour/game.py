@@ -4,7 +4,7 @@ from agents import *
 
 
 class Game:
-    def __init__(self, winCondition: int = 4, boardRows=6, boardCols=7):
+    def __init__(self, winCondition: int = 4, boardRows: int = 6, boardCols: int = 7):
         """
         :param winCondition: Int value for the required number of counters in a row in order to win the game.
         :param boardRows: Int value for the number of rows the game board will have.
@@ -32,7 +32,7 @@ class Game:
 
         return int(column)
 
-    def __playerTurn(self, player):
+    def __playerTurn(self, player: int) -> tuple[bool, bool]:
         """
         Reads in current players choice of column, checks whether it is possible, and executes it.
         :param player: Int value representing which players go it is.
@@ -50,7 +50,7 @@ class Game:
         self.board.printBoard()
         return self.board.checkWinConditions(self.winCondition), False
 
-    def __aiTurn(self, player_val):
+    def __aiTurn(self, player_val: int) -> tuple[bool, bool]:
         print("\nAI choosing a move...\n")
         time.sleep(0.5)
         column = random_agent(self.board)
@@ -58,7 +58,7 @@ class Game:
         self.board.printBoard()
         return self.board.checkWinConditions(self.winCondition), False
 
-    def allTurns(self, ai):
+    def allTurns(self, ai: bool) -> tuple[bool, bool, int]:
         """
         Iterate over all possible turns in the game, resulting in a draw if no win condition is ever met.
         """
@@ -72,7 +72,7 @@ class Game:
             if gameOver:
                 return gameOver, invalidRow, player
 
-    def exhibitionGame(self, ai=False):
+    def exhibitionGame(self, ai: bool = False):
         done = False
         while not done:
             gameOver, invalidRow, player = self.allTurns(ai)
@@ -86,8 +86,9 @@ class Game:
             else:
                 print("\nIt was a draw!")
 
-            done = input("\nPlay again? (Y/N):\n") != 'Y'
+            done = str.upper(input("\nPlay again? (Y/N):\n")) != 'Y'
             if not done:
+                print("")
                 self.board.resetBoard()
 
 
@@ -95,5 +96,6 @@ if __name__ == '__main__':
     game = Game()
     game.exhibitionGame(ai=True)
 
+# TODO: Stop from entering into unavailable col.
 # TODO: Sort more effective way of restarting game.
 # TODO: Clean up of playing AI.

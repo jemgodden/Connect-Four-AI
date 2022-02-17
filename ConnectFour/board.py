@@ -1,5 +1,5 @@
 class Board:
-    def __init__(self, rows=6, cols=7):
+    def __init__(self, rows: int = 6, cols: int = 7):
         """
         :param rows: Int value for the number of rows the game board will have.
         :param cols: Int value for the number of columns the game board will have.
@@ -11,19 +11,20 @@ class Board:
         # Top left position of board is represented by 0th element of 1d matrix.
         self.colCounters = [0] * self.cols
 
-    def updateBoard(self, column, player):
+    def updateBoard(self, column: int, player: int):
         """
         Updates the board by placing a new counter in the player chosen column.
         :param column: Int value for column in which the new counter has been dropped.
         :param player: Int for player whose current go it is.
         """
         arrCol = column - 1
+        print(column, arrCol, self.rows, self.colCounters[arrCol], self.cols)
         position = ((self.rows - self.colCounters[arrCol] - 1) * self.cols) + arrCol
         # Numerical value of each counter corresponds to the player number. 0 if no counter present.
         self.boardArray[position] = player
         self.colCounters[arrCol] += 1
 
-    def __check(self, position, counter):
+    def __check(self, position: int, counter: list[int]) -> list[int]:
         """
         Checks counter in current position of board, during a dimensional check for win conditions, and updates
         information regarding the win condition.
@@ -40,7 +41,7 @@ class Board:
         else:
             return [0, 0]
 
-    def __checkHorizontals(self, winCondition):
+    def __checkHorizontals(self, winCondition: int) -> bool:
         """
         Checks all rows of the board to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
@@ -57,7 +58,7 @@ class Board:
                     return True
         return False
 
-    def __checkVerticals(self, winCondition):
+    def __checkVerticals(self, winCondition: int) -> bool:
         """
         Checks all columns of the board to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
@@ -71,7 +72,7 @@ class Board:
                     return True
         return False
 
-    def __checkDiagonalsRL(self, winCondition):
+    def __checkDiagonalsRL(self, winCondition: int) -> bool:
         """
         Checks all possible diagonals, going from right to left, to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
@@ -94,7 +95,7 @@ class Board:
 
         return False
 
-    def __checkDiagonalsLR(self, winCondition):
+    def __checkDiagonalsLR(self, winCondition: int) -> bool:
         """
         Checks all possible diagonals, going from left to right, to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
@@ -117,7 +118,7 @@ class Board:
 
         return False
 
-    def __checkDiagonals(self, winCondition):
+    def __checkDiagonals(self, winCondition: int) -> bool:
         """
         Checks both directions of diagonals to see whether the win condition has been met.
         :return gameOver: Bool indicating whether the win condition has been met.
@@ -128,7 +129,7 @@ class Board:
         gameOver = self.__checkDiagonalsLR(winCondition)
         return gameOver
 
-    def checkWinConditions(self, winCondition):
+    def checkWinConditions(self, winCondition: int) -> bool:
         """
         Checks entire board to see whether the win condition has been met.
         :return gameOver: Bool indicating whether the win condition has been met.
