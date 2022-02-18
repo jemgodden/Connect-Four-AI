@@ -4,12 +4,12 @@ class Board:
         :param rows: Int value for the number of rows the game board will have.
         :param cols: Int value for the number of columns the game board will have.
         """
-        self.rows = rows
-        self.cols = cols
-        self.maxMoves = self.rows * self.cols
-        self.boardArray = [0] * self.maxMoves
+        self.rows: int = rows
+        self.cols: int = cols
+        self.maxMoves: int = self.rows * self.cols
+        self.boardArray: list[int] = [0] * self.maxMoves
         # Top left position of board is represented by 0th element of 1d matrix.
-        self.colCounters = [0] * self.cols
+        self.colCounters: list[int] = [0] * self.cols
 
     def updateBoard(self, column: int, player: int):
         """
@@ -18,7 +18,6 @@ class Board:
         :param player: Int for player whose current go it is.
         """
         arrCol = column - 1
-        print(column, arrCol, self.rows, self.colCounters[arrCol], self.cols)
         position = ((self.rows - self.colCounters[arrCol] - 1) * self.cols) + arrCol
         # Numerical value of each counter corresponds to the player number. 0 if no counter present.
         self.boardArray[position] = player
@@ -84,7 +83,6 @@ class Board:
                 counter = self.__check(position, counter)
                 if counter[1] == winCondition:
                     return True
-
         for m in range(self.rows - winCondition + 1):
             counter = [0, 0]
             for n in range(self.rows - m):
@@ -92,7 +90,6 @@ class Board:
                 counter = self.__check(position, counter)
                 if counter[1] == winCondition:
                     return True
-
         return False
 
     def __checkDiagonalsLR(self, winCondition: int) -> bool:
@@ -107,7 +104,6 @@ class Board:
                 counter = self.__check(position, counter)
                 if counter[1] == winCondition:
                     return True
-
         for m in range(self.rows - winCondition + 1):
             counter = [0, 0]
             for n in range(self.rows - m):
@@ -115,7 +111,6 @@ class Board:
                 counter = self.__check(position, counter)
                 if counter[1] == winCondition:
                     return True
-
         return False
 
     def __checkDiagonals(self, winCondition: int) -> bool:

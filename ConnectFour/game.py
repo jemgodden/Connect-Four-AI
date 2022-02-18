@@ -4,14 +4,29 @@ from agents import *
 
 
 class Game:
-    def __init__(self, winCondition: int = 4, boardRows: int = 6, boardCols: int = 7):
+    def __init__(self, winCondition: int = 4, boardRows: int = 6, boardCols: int = 7, agent: str = None):
         """
         :param winCondition: Int value for the required number of counters in a row in order to win the game.
         :param boardRows: Int value for the number of rows the game board will have.
         :param boardCols: Int value for the number of columns the game board will have.
+        :param agent: String that specifies agent to play against.
         """
-        self.board = Board(boardRows, boardCols)
-        self.winCondition = winCondition
+        self.board: Board = Board(boardRows, boardCols)
+        self.winCondition: int = winCondition
+        self.agent: Agent = self.__initialiseAgent(agent)
+
+    def __initialiseAgent(self, agent: str):
+        """
+        Initialises an agent to play against.
+        :param agent: String that specifies agent to play against.
+        :return: Agent class for chosen opponent agent.
+        """
+        if agent is None:
+            return None
+        elif str.lower(agent) == 'rand':
+            return RandomAgent(self.board)
+        else:
+            return None
 
     def __checkColValue(self, column: int) -> int:
         """
@@ -35,7 +50,7 @@ class Game:
     def __playerTurn(self, player: int) -> tuple[bool, bool]:
         """
         Reads in current players choice of column, checks whether it is possible, and executes it.
-        :param player: Int value representing which players go it is.
+        :param player: Int value representing which player's go it is.
         :return: Bool indicating whether the win condition has been met.
         """
         column = None
@@ -50,32 +65,42 @@ class Game:
         self.board.printBoard()
         return self.board.checkWinConditions(self.winCondition), False
 
-    def __aiTurn(self, player_val: int) -> tuple[bool, bool]:
+    def __agentTurn(self, player: int) -> tuple[bool, bool]:
+        """
+        Opponent agent takes their go.
+        :param player: Int value representing which player's go it is.
+        :return: Bool indicating whether the win condition has been met.
+        """
         print("\nAI choosing a move...\n")
-        time.sleep(0.5)
-        column = random_agent(self.board)
-        self.board.updateBoard(column, player_val)
+        time.sleep(1)
+        column = self.agent.__performTurn()
+        self.board.updateBoard(column, player)
         self.board.printBoard()
         return self.board.checkWinConditions(self.winCondition), False
 
-    def allTurns(self, ai: bool) -> tuple[bool, bool, int]:
+    def allTurns(self) -> tuple[bool, bool, int]:
         """
         Iterate over all possible turns in the game, resulting in a draw if no win condition is ever met.
+        :return: Bool indicating whether the win condition has been met.
+        :return player: Int value representing which player won.
         """
         self.board.printBoard()
         for i in range(self.board.maxMoves):
             player = (i % 2) + 1
-            if ai and player == 2:
-                gameOver, invalidRow = self.__aiTurn(player)
+            if (self.agent is not None) and (player == 2):
+                gameOver, invalidRow = self.__agentTurn(player)
             else:
                 gameOver, invalidRow = self.__playerTurn(player)
             if gameOver:
                 return gameOver, invalidRow, player
 
-    def exhibitionGame(self, ai: bool = False):
+    def exhibitionGame(self):
+        """
+        Play an exhibition game of connect X.
+        """
         done = False
         while not done:
-            gameOver, invalidRow, player = self.allTurns(ai)
+            gameOver, invalidRow, player = self.allTurns()
 
             if gameOver:
                 if invalidRow:
@@ -93,9 +118,5 @@ class Game:
 
 
 if __name__ == '__main__':
-    game = Game()
-    game.exhibitionGame(ai=True)
-
-# TODO: Stop from entering into unavailable col.
-# TODO: Sort more effective way of restarting game.
-# TODO: Clean up of playing AI.
+    game = Game(agent='rand')
+    game.exhibitionGame()
