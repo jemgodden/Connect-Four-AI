@@ -11,7 +11,7 @@ class Agent:
 
 
 class RandomAgent(Agent):
-    def __performTurn(self) -> int:
+    def performTurn(self) -> int:
         """
         Agent performs turn by selecting column to drop counter into.
         :return: Int column in which the counter will be dropped.

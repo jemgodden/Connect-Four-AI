@@ -44,6 +44,9 @@ class Game:
         if arrCol > (self.board.cols - 1) or arrCol < 0:
             print("This is not a valid column. Please try again.")
             return column
+        if self.board.colCounters[arrCol] == self.board.rows:
+            print("This is column is full. Please try again.")
+            return column
 
         return int(column)
 
@@ -73,12 +76,12 @@ class Game:
         """
         print("\nAI choosing a move...\n")
         time.sleep(1)
-        column = self.agent.__performTurn()
+        column = self.agent.performTurn()
         self.board.updateBoard(column, player)
         self.board.printBoard()
         return self.board.checkWinConditions(self.winCondition), False
 
-    def allTurns(self) -> tuple[bool, bool, int]:
+    def __allTurns(self) -> tuple[bool, bool, int]:
         """
         Iterate over all possible turns in the game, resulting in a draw if no win condition is ever met.
         :return: Bool indicating whether the win condition has been met.
@@ -100,7 +103,7 @@ class Game:
         """
         done = False
         while not done:
-            gameOver, invalidRow, player = self.allTurns()
+            gameOver, invalidRow, player = self.__allTurns()
 
             if gameOver:
                 if invalidRow:
