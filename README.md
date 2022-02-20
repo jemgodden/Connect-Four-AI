@@ -32,9 +32,5 @@ To currently run the program, no external libraries are required.
 The easiest way to use the program currently is to call it from the command line using:
 
 ```sh
-python ConnectFour/Game.py
+python connectx/main.py
 ```
-
-# Log
-
-Initial version uploaded to GitHub.

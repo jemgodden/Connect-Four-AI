@@ -1,15 +1,22 @@
 class Board:
-    def __init__(self, rows: int = 6, cols: int = 7):
+    def __init__(self, rows: int = 6, cols: int = 7, winCondition: int = 4):
         """
         :param rows: Int value for the number of rows the game board will have.
         :param cols: Int value for the number of columns the game board will have.
         """
         self.rows: int = rows
         self.cols: int = cols
+        self.winCondition: int = winCondition
         self.maxMoves: int = self.rows * self.cols
         self.boardArray: list[int] = [0] * self.maxMoves
         # Top left position of board is represented by 0th element of 1d matrix.
         self.colCounters: list[int] = [0] * self.cols
+
+    def boardArray(self):
+        return self.boardArray
+
+    def colCounter(self, i):
+        return self.colCounters[i]
 
     def updateBoard(self, column: int, player: int):
         """
@@ -40,7 +47,7 @@ class Board:
         else:
             return [0, 0]
 
-    def __checkHorizontals(self, winCondition: int) -> bool:
+    def __checkHorizontals(self) -> bool:
         """
         Checks all rows of the board to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
@@ -53,11 +60,11 @@ class Board:
                 # position calculates the next space in the current row being investigated.
                 position = (i * self.cols) + j
                 counter = self.__check(position, counter)
-                if counter[1] == winCondition:
+                if counter[1] == self.winCondition:
                     return True
         return False
 
-    def __checkVerticals(self, winCondition: int) -> bool:
+    def __checkVerticals(self) -> bool:
         """
         Checks all columns of the board to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
@@ -67,75 +74,75 @@ class Board:
             for j in range(self.rows):
                 position = (j * self.cols) + i
                 counter = self.__check(position, counter)
-                if counter[1] == winCondition:
+                if counter[1] == self.winCondition:
                     return True
         return False
 
-    def __checkDiagonalsRL(self, winCondition: int) -> bool:
+    def __checkDiagonalsRL(self) -> bool:
         """
         Checks all possible diagonals, going from right to left, to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
         """
-        for i in range(self.cols - winCondition, self.cols - 1):
+        for i in range(self.cols - self.winCondition, self.cols - 1):
             counter = [0, 0]
             for j in range(i + 1):
                 position = (j * self.cols) + i - j
                 counter = self.__check(position, counter)
-                if counter[1] == winCondition:
+                if counter[1] == self.winCondition:
                     return True
-        for m in range(self.rows - winCondition + 1):
+        for m in range(self.rows - self.winCondition + 1):
             counter = [0, 0]
             for n in range(self.rows - m):
                 position = ((m + n + 1) * self.cols) - n - 1
                 counter = self.__check(position, counter)
-                if counter[1] == winCondition:
+                if counter[1] == self.winCondition:
                     return True
         return False
 
-    def __checkDiagonalsLR(self, winCondition: int) -> bool:
+    def __checkDiagonalsLR(self) -> bool:
         """
         Checks all possible diagonals, going from left to right, to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
         """
-        for i in range(1, self.cols - winCondition + 1):
+        for i in range(1, self.cols - self.winCondition + 1):
             counter = [0, 0]
             for j in range(self.cols - i):
                 position = (j * self.cols) + i + j
                 counter = self.__check(position, counter)
-                if counter[1] == winCondition:
+                if counter[1] == self.winCondition:
                     return True
-        for m in range(self.rows - winCondition + 1):
+        for m in range(self.rows - self.winCondition + 1):
             counter = [0, 0]
             for n in range(self.rows - m):
                 position = ((m + n) * self.cols) + n
                 counter = self.__check(position, counter)
-                if counter[1] == winCondition:
+                if counter[1] == self.winCondition:
                     return True
         return False
 
-    def __checkDiagonals(self, winCondition: int) -> bool:
+    def __checkDiagonals(self) -> bool:
         """
         Checks both directions of diagonals to see whether the win condition has been met.
         :return gameOver: Bool indicating whether the win condition has been met.
         """
-        gameOver = self.__checkDiagonalsRL(winCondition)
+        gameOver = self.__checkDiagonalsRL()
         if gameOver:
             return gameOver
-        gameOver = self.__checkDiagonalsLR(winCondition)
+        gameOver = self.__checkDiagonalsLR()
         return gameOver
 
-    def checkWinConditions(self, winCondition: int) -> bool:
+    def checkWinConditions(self) -> bool:
         """
         Checks entire board to see whether the win condition has been met.
         :return gameOver: Bool indicating whether the win condition has been met.
         """
-        gameOver = self.__checkHorizontals(winCondition)
+        gameOver = self.__checkHorizontals()
         if gameOver:
             return gameOver
-        gameOver = self.__checkVerticals(winCondition)
+        gameOver = self.__checkVerticals()
         if gameOver:
             return gameOver
-        gameOver = self.__checkDiagonals(winCondition)
+        gameOver = self.__checkDiagonals()
         return gameOver
 
     def printBoard(self):
