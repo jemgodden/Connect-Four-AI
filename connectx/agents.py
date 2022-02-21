@@ -1,6 +1,5 @@
 from board import *
 import random
-import time
 
 
 class Agent:
@@ -17,7 +16,6 @@ class RandomAgent(Agent):
         Agent performs turn by selecting column to drop counter into.
         :return: Int column in which the counter will be dropped.
         """
-        time.sleep(1)
         return random.choice([i + 1 for i in range(self.board.cols) if self.board.colCounter(i) != self.board.rows])
 
 
@@ -29,4 +27,3 @@ class RandomAgent(Agent):
 #     def loadModel(self):
 #
 #     def performTurn(self):
-

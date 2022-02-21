@@ -1,11 +1,12 @@
 # Connect-Four-AI
 
-This project is currently a work in progress!
+#### This project is currently a work in progress!!!
 
 # Aims
 
-The aim of this repository is to eventually train an agent to play Connect Four against a human opponent.
-Another aim is to ensure tht the entier project is conducted via object-orientated programming.
+The aims of this repository are:
+* Ensure that the entire project is created whilst adhering to proper coding practice and object-orientated programming.
+* To eventually train an agent to play Connect Four against a human opponent.
 
 # Connect Four
 
@@ -23,14 +24,10 @@ However, the purpose of this is for me to develop my knowledge of reinforcement 
 
 The easiest way to download the code is to press the download button on the home page of the GitHub repository.
 
-# Requirements
-
-To currently run the program, no external libraries are required.
-
 # Use
 
 The easiest way to use the program currently is to call it from the command line using:
 
 ```sh
-python connectx/main.py
+python connectx/play.py
 ```

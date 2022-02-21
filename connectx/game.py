@@ -1,19 +1,40 @@
+import time
 from board import *
 from agents import *
 
 
 class Game:
-    def __init__(self, verbose: bool = True, boardRows: int = 6, boardCols: int = 7, winCondition: int = 4,
-                 player1: str = None, player2: str = None):
+    def __init__(self, verbose: bool = True,
+                 boardRows: int = 6,
+                 boardCols: int = 7,
+                 winCondition: int = 4,
+                 player1: str = None,
+                 player2: str = None):
         """
+        This class is used to play a game of connect-x.
+
+        Usage:
+        '''python
+        from game import *
+        game = Game()
+        game.play()
+        '''
+
         :param verbose: Bool that indicates whether any information should be printed about that game.
-        :param winCondition: Int value for the required number of counters in a row in order to win the game.
         :param boardRows: Int value for the number of rows the game board will have.
         :param boardCols: Int value for the number of columns the game board will have.
+        :param winCondition: Int value for the required number of counters in a row in order to win the game.
         :param player1: String that specifies who will be player 1.
         :param player2: String that specifies who will be player 2.
         """
+        if type(verbose) is not bool:
+            raise TypeError("verbose must be a bool.")
         self.verbose: bool = verbose
+
+        if player1 is not None and type(player1) is not str:
+            raise TypeError("player1 must be a string or None.")
+        if player2 is not None and type(player2) is not str:
+            raise TypeError("player2 must be a string or None.")
         self.board: Board = Board(boardRows, boardCols, winCondition)
         self.players: list[Agent] = [self.__assignPlayer(player1), self.__assignPlayer(player2)]
 
@@ -26,7 +47,7 @@ class Game:
         if str.lower(agent) == 'rand':
             return RandomAgent(self.board)
         else:
-            return None
+            raise ValueError("Specified agent \"{}\" does not exist.".format(agent))
 
     def __assignPlayer(self, player: str) -> Agent:
         """
@@ -36,8 +57,7 @@ class Game:
         """
         if player is not None:
             return self.__initialiseAgent(player)
-        else:
-            return None
+        return None
 
     def __checkColValue(self, column: int) -> int:
         """
@@ -85,6 +105,7 @@ class Game:
         """
         if self.verbose:
             print("Agent is choosing a move...\n")
+            time.sleep(1)
         column = agent.performTurn()
         self.board.updateBoard(column, player)
         if self.verbose:

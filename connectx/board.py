@@ -1,21 +1,54 @@
+import warnings
+import numpy as np
+
+
 class Board:
-    def __init__(self, rows: int = 6, cols: int = 7, winCondition: int = 4):
+    def __init__(self, rows: int = 6,
+                 cols: int = 7,
+                 winCondition: int = 4):
         """
+        This class is used to create and update, during game play, a connect-x board.
+
+        It is typically not used by itself, but instead called by Game class in game.py.
+
         :param rows: Int value for the number of rows the game board will have.
         :param cols: Int value for the number of columns the game board will have.
+        :param winCondition: Int value for the number of counters in a row required to win.
         """
+        if type(rows) is not int:
+            raise TypeError("rows must be an integer.")
         self.rows: int = rows
+
+        if type(cols) is not int:
+            raise TypeError("cols must be an integer.")
         self.cols: int = cols
+
+        if type(winCondition) is not int:
+            raise TypeError("winCondition must be an integer.")
         self.winCondition: int = winCondition
+
+        if winCondition > (rows and cols):
+            raise ValueError("The win condition cannot be larger than the number of rows and columns.")
+        if rows > 20 or cols > 20:
+            warnings.warn("The specified board size is quite large, consider making it smaller.")
+
         self.maxMoves: int = self.rows * self.cols
-        self.boardArray: list[int] = [0] * self.maxMoves
+        self.boardArray: np.ndarray = np.zeros(self.maxMoves)
         # Top left position of board is represented by 0th element of 1d matrix.
-        self.colCounters: list[int] = [0] * self.cols
+        self.colCounters: np.ndarray = np.zeros(self.cols)
 
     def boardArray(self):
+        """
+        Access the current state of the board array.
+        :return boardArray: np.ndarray that contains the current state of the board.
+        """
         return self.boardArray
 
     def colCounter(self, i):
+        """
+        Access the count of number of counters in the ith column of the board.
+        :return colCounters[i]: int that describes the number of counters in the ith column.
+        """
         return self.colCounters[i]
 
     def updateBoard(self, column: int, player: int):
@@ -25,9 +58,9 @@ class Board:
         :param player: Int for player whose current go it is.
         """
         arrCol = column - 1
-        position = ((self.rows - self.colCounters[arrCol] - 1) * self.cols) + arrCol
+        position = ((self.rows - self.colCounter(arrCol) - 1) * self.cols) + arrCol
         # Numerical value of each counter corresponds to the player number. 0 if no counter present.
-        self.boardArray[position] = player
+        self.boardArray[position.astype(int)] = player
         self.colCounters[arrCol] += 1
 
     def __check(self, position: int, counter: list[int]) -> list[int]:
