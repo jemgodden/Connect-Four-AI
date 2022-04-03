@@ -9,7 +9,7 @@ if __name__ == '__main__':
     It can take in a number of command line arguments that specify parameters of the board, game and players/opponents.
     Usage:
     '''sh
-    python3 play.py -v True -r 6 -c 7 -w 4 -p2 rand
+    python3 connectx/play.py -v True -r 6 -c 7 -w 4 -p2 rand
     '''
     """
     parser = argparse.ArgumentParser()
@@ -34,4 +34,7 @@ if __name__ == '__main__':
                 player1=args.player1,
                 player2=args.player2
                 )
-    game.exhibitionGame()
+    game.play()
+
+    # game = TrainingGame()
+    # game.playNGames(20)

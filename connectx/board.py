@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 
 
-class Board:
+class Board(object):
     def __init__(self, rows: int = 6,
                  cols: int = 7,
                  winCondition: int = 4):
@@ -17,39 +17,61 @@ class Board:
         """
         if type(rows) is not int:
             raise TypeError("rows must be an integer.")
-        self.rows: int = rows
+        if rows <= 0:
+            raise ValueError("rows must be larger than 0.")
+        self.__rows: int = rows
 
         if type(cols) is not int:
             raise TypeError("cols must be an integer.")
-        self.cols: int = cols
+        if cols <= 0:
+            raise ValueError("cols must be larger than 0.")
+        self.__cols: int = cols
 
         if type(winCondition) is not int:
             raise TypeError("winCondition must be an integer.")
-        self.winCondition: int = winCondition
+        if cols <= 0:
+            raise ValueError("winCondition must be larger than 0.")
+        self.__winCondition: int = winCondition
 
         if winCondition > (rows and cols):
             raise ValueError("The win condition cannot be larger than the number of rows and columns.")
         if rows > 20 or cols > 20:
             warnings.warn("The specified board size is quite large, consider making it smaller.")
 
-        self.maxMoves: int = self.rows * self.cols
-        self.boardArray: np.ndarray = np.zeros(self.maxMoves)
+        self.__maxMoves: int = self.rows * self.cols
+        self._boardArray: np.ndarray = np.zeros(self.maxMoves)
         # Top left position of board is represented by 0th element of 1d matrix.
-        self.colCounters: np.ndarray = np.zeros(self.cols)
+        self._colCounters: np.ndarray = np.zeros(self.cols)
+
+    @property
+    def cols(self):
+        return self.__cols
+
+    @property
+    def rows(self):
+        return self.__rows
+
+    @property
+    def maxMoves(self):
+        return self.__maxMoves
 
     def boardArray(self):
-        """
-        Access the current state of the board array.
-        :return boardArray: np.ndarray that contains the current state of the board.
-        """
-        return self.boardArray
+        return self._boardArray
 
-    def colCounter(self, i):
-        """
-        Access the count of number of counters in the ith column of the board.
-        :return colCounters[i]: int that describes the number of counters in the ith column.
-        """
-        return self.colCounters[i]
+    def getBoardArray(self, i: int):
+        return self._boardArray[i]
+
+    def setBoardArray(self, i: int, val: int):
+        self._boardArray[i] = val
+
+    def colCounters(self):
+        return self._colCounters
+
+    def getColCounter(self, i: int):
+        return self._colCounters[i]
+
+    def updateColCounter(self, i: int, val: int):
+        self._colCounters[i] += val
 
     def updateBoard(self, column: int, player: int):
         """
@@ -58,12 +80,12 @@ class Board:
         :param player: Int for player whose current go it is.
         """
         arrCol = column - 1
-        position = ((self.rows - self.colCounter(arrCol) - 1) * self.cols) + arrCol
+        position = int(((self.rows - self.getColCounter(arrCol) - 1) * self.cols) + arrCol)
         # Numerical value of each counter corresponds to the player number. 0 if no counter present.
-        self.boardArray[position.astype(int)] = player
-        self.colCounters[arrCol] += 1
+        self.setBoardArray(position, player)
+        self.updateColCounter(arrCol, 1)
 
-    def __check(self, position: int, counter: list[int]) -> list[int]:
+    def _check(self, position: int, player: int, counter: int) -> int:
         """
         Checks counter in current position of board, during a dimensional check for win conditions, and updates
         information regarding the win condition.
@@ -71,112 +93,106 @@ class Board:
         :param counter: An array of ints containing information on current line.
         :return counter: Updated values of counter variable.
         """
-        if self.boardArray[position] != 0:
-            if self.boardArray[position] == counter[0]:
-                counter[1] += 1
-                return counter
-            else:
-                return [self.boardArray[position], 1]
-        else:
-            return [0, 0]
+        pos = self.getBoardArray(position)
+        if pos != 0 and pos == player:
+            counter += 1
+            return counter
+        return 0
 
-    def __checkHorizontals(self) -> bool:
+    def _checkHorizontals(self, player: int, inARow: int = None) -> int:
         """
         Checks all rows of the board to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
         """
+        totalCount = 0
         for i in range(self.rows):
             # Counter used to keep track of which players counter was in the previous space (0th element) and how many
             # there have been in a row (1st element).
-            counter = [0, 0]
+            counter = 0
             for j in range(self.cols):
                 # position calculates the next space in the current row being investigated.
                 position = (i * self.cols) + j
-                counter = self.__check(position, counter)
-                if counter[1] == self.winCondition:
-                    return True
-        return False
+                counter = self._check(position, player, counter)
+                if counter == inARow:
+                    totalCount += 1
+        return totalCount
 
-    def __checkVerticals(self) -> bool:
+    def _checkVerticals(self, player: int, inARow: int = None) -> int:
         """
         Checks all columns of the board to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
         """
+        totalCount = 0
         for i in range(self.cols):
-            counter = [0, 0]
+            counter = 0
             for j in range(self.rows):
                 position = (j * self.cols) + i
-                counter = self.__check(position, counter)
-                if counter[1] == self.winCondition:
-                    return True
-        return False
+                counter = self._check(position, player, counter)
+                if counter == inARow:
+                    totalCount += 1
+        return totalCount
 
-    def __checkDiagonalsRL(self) -> bool:
+    def _checkDiagonalsRL(self, player: int, inARow: int = None) -> int:
         """
         Checks all possible diagonals, going from right to left, to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
         """
-        for i in range(self.cols - self.winCondition, self.cols - 1):
-            counter = [0, 0]
+        totalCount = 0
+        for i in range(self.cols - inARow, self.cols - 1):
+            counter = 0
             for j in range(i + 1):
                 position = (j * self.cols) + i - j
-                counter = self.__check(position, counter)
-                if counter[1] == self.winCondition:
-                    return True
-        for m in range(self.rows - self.winCondition + 1):
-            counter = [0, 0]
+                counter = self._check(position, player, counter)
+                if counter == inARow:
+                    totalCount += 1
+        for m in range(self.rows - inARow + 1):
+            counter = 0
             for n in range(self.rows - m):
                 position = ((m + n + 1) * self.cols) - n - 1
-                counter = self.__check(position, counter)
-                if counter[1] == self.winCondition:
-                    return True
-        return False
+                counter = self._check(position, player, counter)
+                if counter == inARow:
+                    totalCount += 1
+        return totalCount
 
-    def __checkDiagonalsLR(self) -> bool:
+    def _checkDiagonalsLR(self, player: int, inARow: int = None) -> int:
         """
         Checks all possible diagonals, going from left to right, to see if the win condition has been met.
         :return: Bool indicating whether the win condition has been met.
         """
-        for i in range(1, self.cols - self.winCondition + 1):
-            counter = [0, 0]
+        totalCount = 0
+        for i in range(1, self.cols - inARow + 1):
+            counter = 0
             for j in range(self.cols - i):
                 position = (j * self.cols) + i + j
-                counter = self.__check(position, counter)
-                if counter[1] == self.winCondition:
-                    return True
-        for m in range(self.rows - self.winCondition + 1):
-            counter = [0, 0]
+                counter = self._check(position, player, counter)
+                if counter == inARow:
+                    totalCount += 1
+        for m in range(self.rows - inARow + 1):
+            counter = 0
             for n in range(self.rows - m):
                 position = ((m + n) * self.cols) + n
-                counter = self.__check(position, counter)
-                if counter[1] == self.winCondition:
-                    return True
-        return False
+                counter = self._check(position, player, counter)
+                if counter == inARow:
+                    totalCount += 1
+        return totalCount
 
-    def __checkDiagonals(self) -> bool:
+    def _checkDiagonals(self, player: int, inARow: int) -> int:
         """
         Checks both directions of diagonals to see whether the win condition has been met.
         :return gameOver: Bool indicating whether the win condition has been met.
         """
-        gameOver = self.__checkDiagonalsRL()
-        if gameOver:
-            return gameOver
-        gameOver = self.__checkDiagonalsLR()
-        return gameOver
+        return self._checkDiagonalsRL(player, inARow) + self._checkDiagonalsLR(player, inARow)
 
-    def checkWinConditions(self) -> bool:
+    def checkXInARow(self, player: int, inARow: int = None) -> int:
         """
         Checks entire board to see whether the win condition has been met.
         :return gameOver: Bool indicating whether the win condition has been met.
         """
-        gameOver = self.__checkHorizontals()
-        if gameOver:
-            return gameOver
-        gameOver = self.__checkVerticals()
-        if gameOver:
-            return gameOver
-        gameOver = self.__checkDiagonals()
-        return gameOver
+        if inARow is None:
+            inARow = self.__winCondition
+
+        return self._checkHorizontals(player, inARow) + self._checkVerticals(player, inARow
+                                                                             ) + self._checkDiagonals(player, inARow)
 
     def printBoard(self):
         """
@@ -188,9 +204,9 @@ class Board:
         print("\n")
         # Prints player 1 counters as 'o' and player 2 counters as 'x'.
         for i in range(self.maxMoves):
-            if self.boardArray[i] == 1:
+            if self.getBoardArray(i) == 1:
                 print('o', end=' ')
-            elif self.boardArray[i] == 2:
+            elif self.getBoardArray(i) == 2:
                 print('x', end=' ')
             else:
                 print('-', end=' ')
@@ -201,5 +217,5 @@ class Board:
         """
         Resets information given to the board in the last game.
         """
-        self.boardArray = [0] * self.maxMoves
-        self.colCounters = [0] * self.cols
+        self._boardArray = np.zeros(self.maxMoves)
+        self._colCounters = np.zeros(self.cols)

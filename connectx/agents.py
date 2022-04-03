@@ -2,7 +2,7 @@ from board import *
 import random
 
 
-class Agent:
+class Agent(object):
     def __init__(self, board: Board):
         """
         :param board: Board class for the current game's board.
@@ -14,7 +14,7 @@ class Agent:
         Agent performs turn by selecting a random non-full column to drop a counter into.
         :return: Int column in which the counter will be dropped.
         """
-        return random.choice([i + 1 for i in range(self.board.cols) if self.board.colCounter(i) != self.board.rows])
+        return random.choice([i + 1 for i in range(self.board.cols) if self.board.getColCounter(i) != self.board.rows])
 
 
 class MinimumAgent(Agent):
@@ -23,14 +23,15 @@ class MinimumAgent(Agent):
         Agent performs turn by selecting non-full column with minimum value to drop a counter into.
         :return: Int column in which the counter will be dropped.
         """
-        return min([i + 1 for i in range(self.board.cols) if self.board.colCounter(i) != self.board.rows])
+        return min([i + 1 for i in range(self.board.cols) if self.board.getColCounter(i) != self.board.rows])
 
 
 # class PPOAgent(Agent):
 #     def __init__(self, board: Board):
-#         self.model = loadModel()
+#         self.model = self.loadModel()
 #         super().__init__(board)
 #
 #     def loadModel(self):
+#         return PPO.load()
 #
 #     def performTurn(self):
