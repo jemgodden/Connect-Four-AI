@@ -1,4 +1,5 @@
 import time
+import numpy as np
 from board import *
 from agents import *
 
@@ -37,7 +38,7 @@ class Game(object):
             raise TypeError("player1 must be a string or None.")
         if player2 is not None and type(player2) is not str:
             raise TypeError("player2 must be a string or None.")
-        self.__players: list[Agent] = [self._assignPlayer(player1), self._assignPlayer(player2)]
+        self.__players: list[Agent] = [self._assignPlayer(player1, 1), self._assignPlayer(player2, 2)]
 
     @property
     def players(self):
@@ -46,27 +47,31 @@ class Game(object):
     def player(self, i: int):
         return self.__players[i-1]
 
-    def _initialiseAgent(self, agent: str) -> Agent:
+    def _initialiseAgent(self, agent: str, player: int) -> Agent:
         """
         Initialises an agent to play the game.
         :param agent: String that specifies the agent that will play.
         :return: Agent class for chosen agent.
         """
         if str.lower(agent) == 'rand':
-            return Agent(self.board)
+            return RandomAgent(self.board)
         elif str.lower(agent) == 'min':
             return MinimumAgent(self.board)
+        elif str.lower(agent) == 'look':
+            return LookAheadAgent(self.board, player)
+        elif str.lower(agent) == 'ppo':
+            return PPOAgent(self.board)
         else:
             raise ValueError("Specified agent \"{}\" does not exist.".format(agent))
 
-    def _assignPlayer(self, player: str or None) -> Agent or None:
+    def _assignPlayer(self, playerName: str or None, player: int) -> Agent or None:
         """
         Initialises an agent to play against.
         :param player: String that specifies whether this player is an agent or not (None).
         :return: None if human player, else Agent class for chosen agent.
         """
-        if player is not None:
-            return self._initialiseAgent(player)
+        if playerName is not None:
+            return self._initialiseAgent(playerName, player)
         return None
 
     def _checkColValue(self, column: str) -> str or int:
@@ -101,9 +106,9 @@ class Game(object):
         while type(column) is not int:
             column = input("Please choose a column to drop a counter in:\n")
             column = self._checkColValue(column)
-        self.board.updateBoard(column, player)
+        self.board.updateBoard(column - 1, player)  # Subtract 1 from column to get correct array index.
 
-    def _agentTurn(self, agent: Agent, player: int):
+    def _agentTurn(self, player: int) -> bool:
         """
         Opponent agent takes their go.
         :param player: Int value representing which player's go it is.
@@ -112,8 +117,11 @@ class Game(object):
         if self.verbose:
             print("Agent is choosing a move...\n")
             time.sleep(1)
-        column = agent.performTurn()
+        column = self.player(player).performTurn()
+        if self.board.getColCounter(column) == self.board.rows:
+            return True
         self.board.updateBoard(column, player)
+        return False
 
     def _turn(self, player: int) -> bool:
         """
@@ -121,9 +129,10 @@ class Game(object):
         :param player: int indicating which player's go it is.
         :return player: bool representing whether the game is over.
         """
-        curPlayer = self.player(player)
-        if curPlayer is not None:
-            self._agentTurn(curPlayer, player)
+        if self.player(player) is not None:
+            fullColumn = self._agentTurn(player)
+            if fullColumn:
+                return True
         else:
             self._playerTurn(player)
         if self.verbose:
@@ -205,4 +214,4 @@ class TrainingGame(Game):
         :param action: The action the agent will take (column it will drop a counter in) on its turn.
         :param agentOrder: Which player the training agent is.
         """
-        self.board.updateBoard(action + 1, agentOrder)
+        self.board.updateBoard(action, agentOrder)

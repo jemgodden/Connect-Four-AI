@@ -52,6 +52,10 @@ class Board(object):
         return self.__rows
 
     @property
+    def winCondition(self):
+        return self.__winCondition
+
+    @property
     def maxMoves(self):
         return self.__maxMoves
 
@@ -73,17 +77,19 @@ class Board(object):
     def updateColCounter(self, i: int, val: int):
         self._colCounters[i] += val
 
+    def getObservation(self):
+        return np.array(list(self.boardArray()) + list(self.colCounters()))
+
     def updateBoard(self, column: int, player: int):
         """
         Updates the board by placing a new counter in the player chosen column.
         :param column: Int value for column in which the new counter has been dropped.
         :param player: Int for player whose current go it is.
         """
-        arrCol = column - 1
-        position = int(((self.rows - self.getColCounter(arrCol) - 1) * self.cols) + arrCol)
+        position = int(((self.rows - self.getColCounter(column) - 1) * self.cols) + column)
         # Numerical value of each counter corresponds to the player number. 0 if no counter present.
         self.setBoardArray(position, player)
-        self.updateColCounter(arrCol, 1)
+        self.updateColCounter(column, 1)
 
     def _check(self, position: int, player: int, counter: int) -> int:
         """

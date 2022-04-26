@@ -6,7 +6,7 @@ if __name__ == '__main__':
     """
     This procedural file is used to test the connect-x gym environment.
     """
-    env = ConnectXEnv('rand')
+    env = ConnectXEnv(player2='rand')
     episodes = 10
 
     for episode in range(episodes):
