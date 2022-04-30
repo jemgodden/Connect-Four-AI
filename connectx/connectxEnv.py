@@ -51,17 +51,17 @@ class ConnectXEnv(gym.Env):
         self.reward = None
         self.done = False
 
-    def calculateSubReward(self, player: int):
+    def getPlayerVal(self, player: int):
+        return int(self.game.player(player) is None)+1
+
+    def calculateSubReward(self, player: int, polarity: int=1):
         reward = 0
         for i in range(2, self.game.board.winCondition):
-            reward += self.game.board.checkXInARow(int(self.game.player(player) is None)+1, i) * (((i - 1) ** 2) * 0.005)
+            reward += self.game.board.checkXInARow(self.getPlayerVal(player), i) * (((i - 1) ** 2) * 0.005) #* type
         return reward
         # threeInARow = self.game.board.checkXInARow(int(self.game.player(player) is None)+1, 3)
         # twoInARow = self.game.board.checkXInARow(int(self.game.player(player) is None)+1, 2)
         # return (threeInARow * 0.005) + (twoInARow * 0.001)
-
-    def getPlayerVal(self, player: int):
-        return int(self.game.player(player) is None)+1
 
     def trainingStep(self, action: int):
         """
@@ -99,12 +99,15 @@ class ConnectXEnv(gym.Env):
             else:
                 # Calculates sub-reward if game not ended.
                 reward += self.calculateSubReward(2)
+
             # Opponent gets to take turn.
             self.game.opponentTurn(self.getPlayerVal(1))
             # Check if opponent's turn ended game.
             if self.game.board.checkXInARow(self.getPlayerVal(1)) > 0:
                 reward = -10.0
                 done = True
+            # Calculate negative rewards.
+            reward -= self.calculateSubReward(1)
 
         # Create observation space and return relevant information.
         observation = self.game.board.getObservation()
@@ -140,11 +143,7 @@ class ConnectXEnv(gym.Env):
         """
         self.game.board.resetBoard()
 
-        # self.prev_actions = deque(maxlen=20)
-        # for _ in range(20):
-        #     self.prev_actions.append(-1)
-
-        # Put this into step.
+        # Put this into step?
         if self.game.player(1) is not None:
             self.game.opponentTurn(self.getPlayerVal(1))
 
