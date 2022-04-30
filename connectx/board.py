@@ -74,6 +74,9 @@ class Board(object):
     def getColCounter(self, i: int):
         return self._colCounters[i]
 
+    def fullColCounter(self, i: int):
+        return self.getColCounter(i) == self.rows
+
     def updateColCounter(self, i: int, val: int):
         self._colCounters[i] += val
 
