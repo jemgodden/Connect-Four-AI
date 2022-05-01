@@ -1,7 +1,6 @@
 import gym
 from gym import spaces
 from game import *
-from collections import deque
 
 
 class ConnectXEnv(gym.Env):
@@ -11,7 +10,6 @@ class ConnectXEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
     def __init__(self,
-                 # training: bool = False,
                  verbose: bool = False,
                  winCondition: int = 4,
                  boardRows: int = 6,
@@ -37,12 +35,6 @@ class ConnectXEnv(gym.Env):
                                  boardRows=boardRows,
                                  player1=player1,
                                  player2=player2)
-        # if training else Game(verbose=verbose,
-        #                                                             winCondition=winCondition,
-        #                                                             boardCols=boardCols,
-        #                                                             boardRows=boardRows,
-        #                                                             player1=player1,
-        #                                                             player2=player2)
         self.action_space = spaces.Discrete(self.game.board.cols)
         self.observation_space = spaces.Box(low=-1, high=self.game.board.rows, shape=(self.game.board.maxMoves + len(
             self.game.board.colCounters()),), dtype=np.float64)
@@ -59,9 +51,6 @@ class ConnectXEnv(gym.Env):
         for i in range(2, self.game.board.winCondition):
             reward += self.game.board.checkXInARow(self.getPlayerVal(player), i) * (((i - 1) ** 2) * 0.005) #* type
         return reward
-        # threeInARow = self.game.board.checkXInARow(int(self.game.player(player) is None)+1, 3)
-        # twoInARow = self.game.board.checkXInARow(int(self.game.player(player) is None)+1, 2)
-        # return (threeInARow * 0.005) + (twoInARow * 0.001)
 
     def trainingStep(self, action: int):
         """

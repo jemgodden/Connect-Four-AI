@@ -9,12 +9,13 @@ if __name__ == '__main__':
     It can take in a number of command line arguments that specify parameters of the board, game and players/opponents.
     Usage:
     '''sh
-    python3 connectx/play.py -v True -r 6 -c 7 -w 4 -p2 rand
+    python3 connectx/play.py -r 6 -c 7 -w 4 -p2 rand
     '''
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', type=bool, nargs='?', default=True,
-                        help='Specify whether information is printed to the console.')
+    parser.add_argument('-v', '--verbose', action='store_false',
+                        help='Specify whether information should not be printed to the console.')
+    # Really need this? Doesn't make sense to let a game be played without verbose.
     parser.add_argument('-w', '--winCondition', type=int, nargs='?', default=4,
                         help='Specify number of counters in a row needed to win.')
     parser.add_argument('-r', '--rows', type=int, nargs='?', default=6,
@@ -35,6 +36,3 @@ if __name__ == '__main__':
                 player2=args.player2
                 )
     game.play()
-
-    # game = TrainingGame()
-    # game.playNGames(20)

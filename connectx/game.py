@@ -96,7 +96,7 @@ class Game(object):
 
         return int(column)
 
-    def _playerTurn(self, player: int):
+    def _playerTurn(self, player: int) -> int:
         """
         Reads in current players choice of column, checks whether it is possible, and executes it.
         :param player: Int value representing which player's go it is.
@@ -106,9 +106,11 @@ class Game(object):
         while type(column) is not int:
             column = input("Please choose a column to drop a counter in:\n")
             column = self._checkColValue(column)
-        self.board.updateBoard(column - 1, player)  # Subtract 1 from column to get correct array index.
+        action = column - 1
+        self.board.updateBoard(action, player)  # Subtract 1 from column to get correct array index.
+        return action
 
-    def _agentTurn(self, player: int) -> bool:
+    def _agentTurn(self, player: int) -> tuple[bool, int]:
         """
         Opponent agent takes their go.
         :param player: Int value representing which player's go it is.
@@ -116,12 +118,12 @@ class Game(object):
         """
         if self.verbose:
             print("Agent is choosing a move...\n")
-            time.sleep(1)
+            time.sleep(0.3)
         column = self.player(player).performTurn()
         if self.board.getColCounter(column) == self.board.rows:
-            return True
+            return True, column
         self.board.updateBoard(column, player)
-        return False
+        return False, column
 
     def _turn(self, player: int) -> bool:
         """
@@ -130,23 +132,23 @@ class Game(object):
         :return player: bool representing whether the game is over.
         """
         if self.player(player) is not None:
-            fullColumn = self._agentTurn(player)
+            fullColumn, action = self._agentTurn(player)
             if fullColumn:
                 return True
         else:
-            self._playerTurn(player)
+            action = self._playerTurn(player)
         if self.verbose:
-            self.board.printBoard()
+            self.board.printBoard(action)
         return self.board.checkXInARow(player) > 0
 
-    def _allTurns(self) -> tuple[bool, int]:
+    def _allTurns(self) -> tuple[bool, int or None]:
         """
         Iterate over all possible turns in the game, resulting in a draw if no win condition is ever met.
         :return: Bool indicating whether the win condition has been met.
         :return player: Int value representing which player won.
         """
         if self.verbose:
-            self.board.printBoard()
+            self.board.printBoard(None)
         for i in range(self.board.maxMoves):
             player = (i % 2) + 1
             if self.verbose:
@@ -154,6 +156,7 @@ class Game(object):
             gameOver = self._turn(player)
             if gameOver:
                 return gameOver, player
+        return False, None
 
     def play(self):
         """

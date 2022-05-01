@@ -203,14 +203,23 @@ class Board(object):
         return self._checkHorizontals(player, inARow) + self._checkVerticals(player, inARow
                                                                              ) + self._checkDiagonals(player, inARow)
 
-    def printBoard(self):
+    def printBoard(self, latestMove: int or None):
         """
         Prints the board to the console.
         """
         # Print numerical label for each column of board at the top of the board.
         for j in range(self.cols):
             print((j + 1), end=' ')
-        print("\n")
+        if latestMove is None:
+            print('\n')
+        else:
+            print('\n', end='')
+            for k in range(self.cols):
+                if k != latestMove:
+                    print(' ', end=' ')
+                else:
+                    print('^', end=' ')
+            print('\n', end='')
         # Prints player 1 counters as 'o' and player 2 counters as 'x'.
         for i in range(self.maxMoves):
             if self.getBoardArray(i) == 1:
