@@ -1,16 +1,16 @@
 import time
-import numpy as np
-from board import *
-from agents import *
+from .board import Board
+from .agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent, PPOAgent
 
 
-class Game(object):
-    def __init__(self, verbose: bool = True,
+class Game:
+    def __init__(self,
+                 verbose: bool = True,
                  boardRows: int = 6,
                  boardCols: int = 7,
                  winCondition: int = 4,
-                 player1: str = None,
-                 player2: str = None):
+                 player1: str or None = None,
+                 player2: str or None = None):
         """
         This class is used to play a game of connect-x.
 
@@ -38,7 +38,7 @@ class Game(object):
             raise TypeError("player1 must be a string or None.")
         if player2 is not None and type(player2) is not str:
             raise TypeError("player2 must be a string or None.")
-        self.__players: list[Agent] = [self._assignPlayer(player1, 1), self._assignPlayer(player2, 2)]
+        self.__players: list[connectx.agents.Agent] = [self._assignPlayer(player1, 1), self._assignPlayer(player2, 2)]
 
     @property
     def players(self):
@@ -183,8 +183,8 @@ class TrainingGame(Game):
                  boardRows: int = 6,
                  boardCols: int = 7,
                  winCondition: int = 4,
-                 player1: str = 'rand',
-                 player2: str = None):
+                 player1: str or None = 'rand',
+                 player2: str or None = None):
         """
         Class used to run connect-x games for the agents to train with.
 
@@ -201,6 +201,9 @@ class TrainingGame(Game):
                          winCondition=winCondition,
                          player1=player1,
                          player2=player2)
+
+        if (player1 is None and player2 is None) or (player1 is not None and player2 is not None):
+            raise Exception("Exactly one player must be a predefined agent.")
 
     def opponentTurn(self, oppOrder: int = 1):
         """

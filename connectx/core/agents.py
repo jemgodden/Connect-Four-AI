@@ -1,10 +1,10 @@
 from abc import ABC
-from board import *
+from .board import Board
 
 import random
 import numpy as np
 
-from treelib import Tree, Node
+from treelib import Tree
 import copy
 
 from stable_baselines3 import PPO
@@ -112,7 +112,7 @@ class LookAheadAgent(Agent):
 
 class PPOAgent(Agent):
     def __init__(self, board: Board):
-        self.file_location = 'models/PPO_v1.0/PPO_v1.0_2500000'
+        self.file_location = '../models/PPO_v1.0/PPO_v1.0_2500000'
         self.model = self.loadModel()
         super().__init__(board)
 

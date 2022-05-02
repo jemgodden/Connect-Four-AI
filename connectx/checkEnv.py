@@ -1,5 +1,4 @@
-from stable_baselines3.common.env_checker import check_env
-from connectxEnv import ConnectXEnv
+from core import ConnectXEnv
 
 
 if __name__ == '__main__':

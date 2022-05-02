@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 
 
-class Board(object):
+class Board():
     def __init__(self, rows: int = 6,
                  cols: int = 7,
                  winCondition: int = 4):

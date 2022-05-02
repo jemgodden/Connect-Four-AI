@@ -1,5 +1,5 @@
 import argparse
-from game import *
+from core import Game
 
 
 if __name__ == '__main__':

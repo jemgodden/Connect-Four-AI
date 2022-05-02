@@ -1,5 +1,5 @@
 import os
-from connectxEnv import ConnectXEnv
+from core import ConnectXEnv
 from stable_baselines3 import PPO
 
 MODEL_NAME = 'PPO_v1.1'
