@@ -1,4 +1,6 @@
+import random
 import time
+from colorama import Fore, Style
 from .board import Board
 from .agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent, PPOAgent
 
@@ -25,8 +27,8 @@ class Game:
         :param boardRows: Int value for the number of rows the game board will have.
         :param boardCols: Int value for the number of columns the game board will have.
         :param winCondition: Int value for the required number of counters in a row in order to win the game.
-        :param player1: String that specifies who will be player 1.
-        :param player2: String that specifies who will be player 2.
+        :param player1: String that specifies who will be player 1, or what file should be loaded.
+        :param player2: String that specifies who will be player 2, or what file should be loaded.
         """
         self.board: Board = Board(boardRows, boardCols, winCondition)
 
@@ -47,22 +49,34 @@ class Game:
     def player(self, i: int):
         return self.__players[i-1]
 
+    def _useAgentFile(self, agentFilePath: str) -> Agent:
+        agentDirs = agentFilePath.split('/')
+        if agentDirs[-1][:3] == 'PPO':
+            return PPOAgent(self.board, agentFilePath)
+        else:
+            raise ValueError(f"Specified agent filepath {agentFilePath} does not exist.")
+
     def _initialiseAgent(self, agent: str, player: int) -> Agent:
         """
         Initialises an agent to play the game.
         :param agent: String that specifies the agent that will play.
         :return: Agent class for chosen agent.
         """
-        if str.lower(agent) == 'rand':
+        if len(agent) > 4:
+            # NOT INFALLIBLE METHOD!
+            return self._useAgentFile(agent)
+
+        agentLower = str.lower(agent)
+        if agentLower == 'rand':
             return RandomAgent(self.board)
-        elif str.lower(agent) == 'min':
+        elif agentLower == 'min':
             return MinimumAgent(self.board)
-        elif str.lower(agent) == 'look':
+        elif agentLower == 'look':
             return LookAheadAgent(self.board, player)
-        elif str.lower(agent) == 'ppo':
+        elif agentLower == 'ppo':
             return PPOAgent(self.board)
         else:
-            raise ValueError("Specified agent \"{}\" is either invalid or not supported.".format(agent))
+            raise ValueError(f"Specified agent {agent} is either invalid.")
 
     def _assignPlayer(self, playerName: str or None, player: int) -> Agent or None:
         """
@@ -118,7 +132,7 @@ class Game:
         """
         if self.verbose:
             print("Agent is choosing a move...\n")
-            time.sleep(0.3)
+            time.sleep(random.uniform(0.8, 1.2))
         column = self.player(player).performTurn()
         if self.board.getColCounter(column) == self.board.rows:
             return True, column
@@ -163,6 +177,8 @@ class Game:
         Play an exhibition game of connect X.
         """
         done = False
+        if self.verbose:
+            print(f"\nPlayer 1: {Fore.YELLOW}o{Style.RESET_ALL}\nPlayer 2: {Fore.RED}x{Style.RESET_ALL}\n")
         while not done:
             gameOver, player = self._allTurns()
 

@@ -1,4 +1,5 @@
 import warnings
+from colorama import Fore, Style
 import numpy as np
 
 
@@ -223,9 +224,9 @@ class Board():
         # Prints player 1 counters as 'o' and player 2 counters as 'x'.
         for i in range(self.maxMoves):
             if self.getBoardArray(i) == 1:
-                print('o', end=' ')
+                print(f"{Fore.YELLOW}o{Style.RESET_ALL}", end=' ')
             elif self.getBoardArray(i) == 2:
-                print('x', end=' ')
+                print(f"{Fore.RED}x{Style.RESET_ALL}", end=' ')
             else:
                 print('-', end=' ')
             if (i + 1) % self.cols == 0:
