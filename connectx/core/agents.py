@@ -7,7 +7,7 @@ import numpy as np
 from treelib import Tree
 import copy
 
-from stable_baselines3 import PPO
+from stable_baselines3 import PPO, A2C
 
 
 class Agent(ABC):
@@ -40,7 +40,7 @@ class MinimumAgent(Agent):
 
 
 class LookAheadAgent(Agent):
-    def __init__(self, board: Board, player: int, steps: int = 4):
+    def __init__(self, board: Board, player: int, steps: int = 3):
         self.steps = steps
         self.player = player
         self.oppPlayer = 1 if player == 2 else 1
@@ -95,11 +95,13 @@ class LookAheadAgent(Agent):
         self.lookAhead(tree, self.board, '', 0, 0)
         return {leaf.identifier: leaf.tag for leaf in tree.leaves()}
 
-    def filterActions(self, allActions: dict[str: int]) -> list[str]:
+    @staticmethod
+    def filterActions(allActions: dict[str: int]) -> list[str]:
         maxReward = max(allActions.values())
         return [action for action, reward in allActions.items() if reward == maxReward]
 
-    def chooseAction(self, bestActions: list[str]) -> int:
+    @staticmethod
+    def chooseAction(bestActions: list[str]) -> int:
         bestAction = random.choice(bestActions)
         return int(bestAction[0])
 
@@ -110,16 +112,16 @@ class LookAheadAgent(Agent):
         return action
 
 
-class PPOAgent(Agent):
-    def __init__(self, board: Board, filePath: str = 'connectx/models/PPO_v0.1/PPO_v0.1_200000'):
-        self.model = self.loadModel(filePath)
+class RLAgent(Agent):
+    def __init__(self, board: Board, filepath: str):
         super().__init__(board)
+        self.model = self._loadModel(filepath)
 
     @staticmethod
-    def loadModel(filePath):
-        return PPO.load(filePath)
+    def _loadModel(filePath):
+        pass
 
-    def predictActionProba(self):
+    def _predictActionProba(self) -> np.float:
         obs = self.model.policy.obs_to_tensor(self.board.getObservation())[0]
         dis = self.model.policy.get_distribution(obs)
         probs = dis.distribution.probs
@@ -127,9 +129,27 @@ class PPOAgent(Agent):
         return probs_np[0]
 
     def performTurn(self) -> int:
-        actionProba = self.predictActionProba()
+        actionProba = self._predictActionProba()
         action = np.argmax(actionProba)
         while self.board.getColCounter(int(action)) == self.board.rows:
             actionProba[action] = 0
             action = np.argmax(actionProba)
         return int(action)
+
+
+class PPOAgent(RLAgent):
+    def __init__(self, board: Board, filePath: str = 'connectx/core/models/PPO_6-7-4_v0.1/PPO_6-7-4_v0.1_50000'):
+        super().__init__(board, filePath)
+
+    @staticmethod
+    def _loadModel(filePath):
+        return PPO.load(filePath)
+
+
+class A2CAgent(RLAgent):
+    def __init__(self, board: Board, filePath: str = 'connectx/core/models/A2C_6-7-4_v0.1/A2C_6-7-4_v0.1_50000'):
+        super().__init__(board, filePath)
+
+    @staticmethod
+    def _loadModel(filePath):
+        return A2C.load(filePath)

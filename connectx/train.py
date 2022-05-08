@@ -2,11 +2,11 @@ import argparse
 from core import Learn
 
 MODEL_TYPE = 'PPO'
-MODEL_VERSION = 0
+MODEL_VERSION = 1
 MODEL_FILE = None
 MODEL_PLAYER = 1
 
-OPPONENT_NAME = 'rand'
+OPPONENT_NAME = 'min'
 
 ROWS = 6
 COLS = 7
@@ -51,6 +51,21 @@ if __name__ == '__main__':
                   cols=args.columns,
                   winCondition=args.winCondition)
 
-    learn.train(5, 10000)
-    learn.updateEnv(modelPlayer=2, opponentName=args.opponentName)
-    learn.train(5, 10000)
+    learn.train(25, 10000)
+    learn.updateEnv(modelPlayer=2, opponentName='min')
+    learn.train(25, 10000)
+
+    learn.updateEnv(modelPlayer=1, opponentName='rand')
+    learn.train(50, 10000)
+    learn.updateEnv(modelPlayer=2, opponentName='rand')
+    learn.train(50, 10000)
+
+    learn.updateEnv(modelPlayer=1, opponentName='look')
+    learn.train(100, 10000)
+    learn.updateEnv(modelPlayer=2, opponentName='look')
+    learn.train(100, 10000)
+
+    # learn.updateEnv(modelPlayer=1, opponentName='connectx/core/models/PPO_6-7-4_v1.1/PPO_6-7-4_v1.1_1750000')
+    # learn.train(200, 10000)
+    # learn.updateEnv(modelPlayer=2, opponentName='connectx/core/models/PPO_6-7-4_v1.1/PPO_6-7-4_v1.1_1750000')
+    # learn.train(200, 10000)

@@ -2,7 +2,7 @@ import random
 import time
 from colorama import Fore, Style
 from .board import Board
-from .agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent, PPOAgent
+from .agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent, PPOAgent, A2CAgent
 
 
 class Game:
@@ -53,8 +53,10 @@ class Game:
         agentDirs = agentFilePath.split('/')
         if agentDirs[-1][:3] == 'PPO':
             return PPOAgent(self.board, agentFilePath)
+        elif agentDirs[-1][:3] == 'A2C':
+            return A2CAgent(self.board, agentFilePath)
         else:
-            raise ValueError(f"Specified agent filepath {agentFilePath} does not exist.")
+            raise ValueError(f"Specified agent filepath \'{agentFilePath}\' does not exist.")
 
     def _initialiseAgent(self, agent: str, player: int) -> Agent:
         """
@@ -62,8 +64,7 @@ class Game:
         :param agent: String that specifies the agent that will play.
         :return: Agent class for chosen agent.
         """
-        if len(agent) > 4:
-            # NOT INFALLIBLE METHOD!
+        if '/' in agent:
             return self._useAgentFile(agent)
 
         agentLower = str.lower(agent)
@@ -75,8 +76,10 @@ class Game:
             return LookAheadAgent(self.board, player)
         elif agentLower == 'ppo':
             return PPOAgent(self.board)
+        elif agentLower == 'a2c':
+            return A2CAgent(self.board)
         else:
-            raise ValueError(f"Specified agent {agent} is either invalid.")
+            raise ValueError(f"Specified agent \'{agent}\' is either invalid.")
 
     def _assignPlayer(self, playerName: str or None, player: int) -> Agent or None:
         """
@@ -104,7 +107,7 @@ class Game:
         if arrCol > (self.board.cols - 1) or arrCol < 0:
             print("This is not a valid column. Please try again.")
             return column
-        if self.board.getColCounter(arrCol) == self.board.rows:
+        if self.board.fullColCounter(arrCol):
             print("This is column is full. Please try again.")
             return column
 
@@ -134,7 +137,7 @@ class Game:
             print("Agent is choosing a move...\n")
             time.sleep(random.uniform(0.8, 1.2))
         column = self.player(player).performTurn()
-        if self.board.getColCounter(column) == self.board.rows:
+        if self.board.fullColCounter(column):
             return True, column
         self.board.updateBoard(column, player)
         return False, column

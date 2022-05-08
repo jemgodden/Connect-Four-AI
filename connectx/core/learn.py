@@ -1,13 +1,13 @@
 import os
 from .connectXEnv import ConnectXEnv
-from stable_baselines3 import PPO
+from stable_baselines3 import PPO, A2C
 
 
 class Learn:
     MODELS_DIR = f"core/models/"
     LOGS_DIR = f"training-logs/"
 
-    MODEL_TYPES = ['PPO']
+    MODEL_TYPES = ['PPO', 'A2C']
     PLAYERS = [1, 2]
 
     def __init__(self,
@@ -31,7 +31,7 @@ class Learn:
         if not os.path.exists(self.LOGS_DIR):
             os.makedirs(self.LOGS_DIR)
 
-        self._modelName = f"{modelType}_{modelVersion}"
+        self._modelName = f"{modelType}_{rows}-{cols}-{winCondition}_{modelVersion}"
         self._modelPath = self.MODELS_DIR + f"{self._modelName}/"
         self._logsPath = self.LOGS_DIR
 
@@ -44,6 +44,11 @@ class Learn:
                 return PPO('MlpPolicy', self._env, verbose=1, tensorboard_log=self._logsPath)
             else:
                 return PPO.load(self.MODELS_DIR + modelFile, self._env, verbose=1, tensorboard_log=self._logsPath)
+        if modelType == 'A2C':
+            if modelFile is None:
+                return A2C('MlpPolicy', self._env, verbose=1, tensorboard_log=self._logsPath)
+            else:
+                return A2C.load(self.MODELS_DIR + modelFile, self._env, verbose=1, tensorboard_log=self._logsPath)
 
     def updateModel(self, modelType: str, modelFile: str or None):
         self._model = self._initModel(modelType, modelFile)

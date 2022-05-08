@@ -9,7 +9,7 @@ if __name__ == '__main__':
     It can take in a number of command line arguments that specify parameters of the board, game and players/opponents.
     Usage:
     '''sh
-    python3 connectx/play.py -p1 rand -p2 connectx/models/PPO_v0.1/PPO_v0.1_200000
+    python3 connectx/play.py -p1 rand -p2 connectx/core/models/PPO_6-7-4_v0.1/PPO_6-7-4_v0.1_50000
 
     '''
     """
