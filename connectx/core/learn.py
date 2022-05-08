@@ -4,7 +4,7 @@ from stable_baselines3 import PPO
 
 
 class Learn:
-    MODELS_DIR = f"models/"
+    MODELS_DIR = f"core/models/"
     LOGS_DIR = f"training-logs/"
 
     MODEL_TYPES = ['PPO']

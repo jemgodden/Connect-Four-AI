@@ -111,13 +111,13 @@ class LookAheadAgent(Agent):
 
 
 class PPOAgent(Agent):
-    def __init__(self, board: Board):
-        self.file_location = '../models/PPO_v1.0/PPO_v1.0_2500000'
-        self.model = self.loadModel()
+    def __init__(self, board: Board, filePath: str = 'connectx/models/PPO_v0.1/PPO_v0.1_200000'):
+        self.model = self.loadModel(filePath)
         super().__init__(board)
 
-    def loadModel(self):
-        return PPO.load(self.file_location)
+    @staticmethod
+    def loadModel(filePath):
+        return PPO.load(filePath)
 
     def predictActionProba(self):
         obs = self.model.policy.obs_to_tensor(self.board.getObservation())[0]
@@ -127,7 +127,6 @@ class PPOAgent(Agent):
         return probs_np[0]
 
     def performTurn(self) -> int:
-        # action, _state = self.model.predict(self.board.getObservation(), deterministic=True)
         actionProba = self.predictActionProba()
         action = np.argmax(actionProba)
         while self.board.getColCounter(int(action)) == self.board.rows:
