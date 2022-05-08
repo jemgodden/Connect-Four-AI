@@ -38,7 +38,7 @@ class Game:
             raise TypeError("player1 must be a string or None.")
         if player2 is not None and type(player2) is not str:
             raise TypeError("player2 must be a string or None.")
-        self.__players: list[connectx.agents.Agent] = [self._assignPlayer(player1, 1), self._assignPlayer(player2, 2)]
+        self.__players: list[Agent] = [self._assignPlayer(player1, 1), self._assignPlayer(player2, 2)]
 
     @property
     def players(self):
@@ -62,7 +62,7 @@ class Game:
         elif str.lower(agent) == 'ppo':
             return PPOAgent(self.board)
         else:
-            raise ValueError("Specified agent \"{}\" does not exist.".format(agent))
+            raise ValueError("Specified agent \"{}\" is either invalid or not supported.".format(agent))
 
     def _assignPlayer(self, playerName: str or None, player: int) -> Agent or None:
         """

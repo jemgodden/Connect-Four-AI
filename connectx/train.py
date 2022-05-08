@@ -1,55 +1,56 @@
-import os
-from core import ConnectXEnv
-from stable_baselines3 import PPO
+import argparse
+from core import Learn
 
-MODEL_NAME = 'PPO_v1.1'
-MODELS_DIR = f"models/{MODEL_NAME}/"
-LOGS_DIR = f"logs/"
-TIMESTEPS = 10000
-MAX_ITERS = 250
+MODEL_TYPE = 'PPO'
+MODEL_VERSION = 0
+MODEL_FILE = None
+MODEL_PLAYER = 1
+
+OPPONENT_NAME = 'rand'
+
+ROWS = 6
+COLS = 7
+WIN_CONDITION = 4
+
+"""
+Use command below in venv terminal to show model training logs.
+
+tensorboard --logdir=connectx/training-logs
+"""
+
 
 if __name__ == '__main__':
-    """
-    This procedural file is used to train a connect-x agent.
-    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-t', '--modelType', type=str, nargs='?', default=MODEL_TYPE,
+                        help='Policy used by model being trained.')
+    parser.add_argument('-v', '--modelVersion', type=int, nargs='?', default=MODEL_VERSION,
+                        help='Version of the model being trained.')
+    parser.add_argument('-f', '--modelFile', type=str, nargs='?', default=MODEL_FILE,
+                        help='File being used to load in the model being trained.')
+    parser.add_argument('-p', '--modelPlayer', type=str, nargs='?', default=MODEL_PLAYER,
+                        help='Which player the model being trained will be.')
+    parser.add_argument('-', '--opponentName', type=str, nargs='?', default=OPPONENT_NAME,
+                        help='Which opponent the model will train against.')
+    parser.add_argument('-r', '--rows', type=int, nargs='?', default=ROWS,
+                        help='Specify number of rows on board.')
+    parser.add_argument('-c', '--columns', type=int, nargs='?', default=COLS,
+                        help='Specify number of columns on board.')
+    parser.add_argument('-w', '--winCondition', type=int, nargs='?', default=WIN_CONDITION,
+                        help='Specify number of counters in a row needed to win.')
+    args = parser.parse_args()
 
-    if not os.path.exists(MODELS_DIR):
-        os.makedirs(MODELS_DIR)
-    if not os.path.exists(LOGS_DIR):
-        os.makedirs(LOGS_DIR)
+    subVersion = 1
+    modelVersion = f"v{args.modelVersion}.{subVersion}"
 
-    # # PPO_v0.0: 50 iterations of 10000 timesteps. Training as player 1.
-    # env = ConnectXEnv(player2='min')
-    # env.reset()
-    # model = PPO('MlpPolicy', env, verbose=1, tensorboard_log=LOGS_DIR)
+    learn = Learn(modelType=args.modelType,
+                  modelVersion=modelVersion,
+                  modelFile=args.modelFile,
+                  modelPlayer=args.modelPlayer,
+                  opponentName=args.opponentName,
+                  rows=args.rows,
+                  cols=args.columns,
+                  winCondition=args.winCondition)
 
-    # # PPO_v0.1: 50 iterations of 10000 timesteps. Training as player 2.
-    # env = ConnectXEnv(player1='min')
-    # env.reset()
-    # model = PPO.load('models/PPO_v0.0/PPO_v0.0_500000', env, verbose=1, tensorboard_log=LOGS_DIR)
-
-    # # PPO_v0.2: 100 iterations of 10000 timesteps. Training as player 1.
-    # env = ConnectXEnv(player2='rand')
-    # env.reset()
-    # model = PPO.load('models/PPO_v0.1/PPO_v0.1_500000', env, verbose=1, tensorboard_log=LOGS_DIR)
-
-    # # PPO_v0.3: 100 iterations of 10000 timesteps. Training as player 2.
-    # env = ConnectXEnv(player1='rand')
-    # env.reset()
-    # model = PPO.load('models/PPO_v0.2/PPO_v0.2_1000000', env, verbose=1, tensorboard_log=LOGS_DIR)
-
-    # # PPO_v1.0: 250 iterations of 10000 timesteps. Training as player 2.
-    # env = ConnectXEnv(player1='ppo')
-    # env.reset()
-    # model = PPO.load('models/PPO_v0.3/PPO_v0.3_1000000', env, verbose=1, tensorboard_log=LOGS_DIR)
-
-    # PPO_v1.1: 250 iterations of 10000 timesteps. Training as player 1.
-    env = ConnectXEnv(player2='ppo')
-    env.reset()
-    model = PPO.load('models/PPO_v1.0/PPO_v1.0_2500000', env, verbose=1, tensorboard_log=LOGS_DIR)
-
-    iteration = 0
-    while iteration < MAX_ITERS:
-        iteration += 1
-        model.learn(total_timesteps=TIMESTEPS, reset_num_timesteps=False, tb_log_name=f"{MODEL_NAME}")
-        model.save(f"{MODELS_DIR}/{MODEL_NAME+'_'+str(TIMESTEPS*iteration)}")
+    learn.train(5, 10000)
+    learn.updateEnv(modelPlayer=2, opponentName=args.opponentName)
+    learn.train(5, 10000)
