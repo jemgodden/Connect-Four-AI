@@ -17,7 +17,7 @@ if __name__ == '__main__':
     """
     Procedural file used to conduct bulk training of models.
     Can be configured from the command line. Use -h or --help to see the available arguments.
-    
+
     Use command below in venv terminal to show model training logs:
     tensorboard --logdir=connectx/training-logs
     """

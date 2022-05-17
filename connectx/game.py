@@ -35,22 +35,23 @@ class Game:
         """
         self.board: Board = Board(boardRows, boardCols, winCondition)
 
-        if type(verbose) is not bool:
+        if not isinstance(verbose, bool):
             raise TypeError("verbose must be a bool.")
         self.verbose: bool = verbose
 
-        if player1 is not None and type(player1) is not str:
+        if player1 is not None and not isinstance(player1, str):
             raise TypeError("player1 must be a string or None.")
-        if player2 is not None and type(player2) is not str:
+        if player2 is not None and not isinstance(player2, str):
             raise TypeError("player2 must be a string or None.")
-        self.__players: list[Agent or None] = [self._assignPlayer(player1, 1), self._assignPlayer(player2, 2)]
+        self.__players: list[Agent or None] = [
+            self._assignPlayer(player1, 1), self._assignPlayer(player2, 2)]
 
     @property
     def players(self) -> list[Agent or None]:
         return self.__players
 
     def player(self, i: int) -> Agent or None:
-        return self.__players[i-1]
+        return self.__players[i - 1]
 
     def _userPlayer(self, player: int) -> bool:
         """
@@ -69,13 +70,15 @@ class Game:
         :return: Agent being initialised.
         """
         agentDirs = agentFilePath.split('/')
-        # Split the filepath by forward slash and filter to find agent algorithm to load.
+        # Split the filepath by forward slash and filter to find agent
+        # algorithm to load.
         if agentDirs[-1][:3] == 'PPO':
             return PPOAgent(self.board, agentFilePath)
         elif agentDirs[-1][:3] == 'A2C':
             return A2CAgent(self.board, agentFilePath)
         else:
-            raise ValueError(f"Specified agent filepath \'{agentFilePath}\' does not exist or is not supported.")
+            raise ValueError(
+                f"Specified agent filepath \'{agentFilePath}\' does not exist or is not supported.")
 
     def _initialiseAgent(self, agent: str, player: int) -> Agent:
         """
@@ -102,7 +105,8 @@ class Game:
         else:
             raise ValueError(f"Specified agent \'{agent}\' is either invalid.")
 
-    def _assignPlayer(self, playerName: str or None, player: int) -> Agent or None:
+    def _assignPlayer(self, playerName: str or None,
+                      player: int) -> Agent or None:
         """
         Function to determine if user playing as current player, and initialises specified agent if not.
 
@@ -147,13 +151,15 @@ class Game:
         :return: Boolean indicating whether the win condition has been met.
         """
         column = None
-        while type(column) is not int:
+        while not isinstance(column, int):
             # Reads in current players choice of column, checks whether it is possible, and executes it if so.
-            # Forces user to re-enter column choice if not possible, until it is.
+            # Forces user to re-enter column choice if not possible, until it
+            # is.
             column = input("Please choose a column to drop a counter in:\n")
             column = self._checkColValue(column)
 
-        # Convert column choice to an action (the correct format for the program).
+        # Convert column choice to an action (the correct format for the
+        # program).
         action = column - 1
         self.board.updateBoard(action, player)
         return action
@@ -230,7 +236,8 @@ class Game:
 
         if self.verbose:
             # Show information on how each player can be identified.
-            print(f"\nPlayer 1: {Fore.YELLOW}o{Style.RESET_ALL}\nPlayer 2: {Fore.RED}x{Style.RESET_ALL}\n")
+            print(
+                f"\nPlayer 1: {Fore.YELLOW}o{Style.RESET_ALL}\nPlayer 2: {Fore.RED}x{Style.RESET_ALL}\n")
 
         while not done:
             gameOver, player = self._allTurns()
@@ -271,7 +278,8 @@ class TrainingGame(Game):
                          player1=player1,
                          player2=player2)
 
-        if (player1 is None and player2 is None) or (player1 is not None and player2 is not None):
+        if (player1 is None and player2 is None) or (
+                player1 is not None and player2 is not None):
             raise Exception("Exactly one player must be a predefined agent.")
 
     def opponentTurn(self, oppPlayer: int = 1):

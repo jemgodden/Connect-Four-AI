@@ -33,7 +33,8 @@ class RandomAgent(Agent):
         """
         Agent selects a random valid (non-full) column to drop a counter into.
         """
-        return random.choice([i for i in range(self.board.cols) if not self.board.fullColCounter(i)])
+        return random.choice(
+            [i for i in range(self.board.cols) if not self.board.fullColCounter(i)])
 
 
 class MinimumAgent(Agent):
@@ -41,7 +42,8 @@ class MinimumAgent(Agent):
         """
         Agent performs turn by selecting non-full column with minimum value to drop a counter into.
         """
-        return min([i for i in range(self.board.cols) if not self.board.fullColCounter(i)])
+        return min([i for i in range(self.board.cols)
+                   if not self.board.fullColCounter(i)])
 
 
 class LookAheadAgent(Agent):
@@ -74,12 +76,15 @@ class LookAheadAgent(Agent):
 
         reward = 0
         for i in range(2, board.winCondition):
-            # Weighting applied to reward depending on size of connected counters.
+            # Weighting applied to reward depending on size of connected
+            # counters.
             reward += board.checkXInARow(player, i) * (i ** 3)
-        reward += board.checkXInARow(player, board.winCondition) * (board.winCondition ** 5)
+        reward += board.checkXInARow(player, board.winCondition) * \
+            (board.winCondition ** 5)
         return reward
 
-    def _oppositionBestTurn(self, board: Board, oppPlayer: int) -> tuple[int, int]:
+    def _oppositionBestTurn(
+            self, board: Board, oppPlayer: int) -> tuple[int, int]:
         """
         Finds the opponent's best turn, using the agent's heuristic, and takes it.
 
@@ -99,11 +104,13 @@ class LookAheadAgent(Agent):
                 actions[i] = self._calculateRewards(boardCopy, oppPlayer)
 
         maxReward = max(actions.values())
-        bestActions = [key for key, value in actions.items() if value == maxReward]
+        bestActions = [key for key, value in actions.items()
+                       if value == maxReward]
         bestAction = random.choice(bestActions)
         return bestAction, maxReward
 
-    def _lookAhead(self, tree: Tree, board: Board, parent: str, parentReward: int, step: int):
+    def _lookAhead(self, tree: Tree, board: Board,
+                   parent: str, parentReward: int, step: int):
         """
         Recursive function to create the look-ahead tree.
         looks 1 agent turn and 1 opposition turn ahead from the prior board state.
@@ -117,11 +124,13 @@ class LookAheadAgent(Agent):
         if step != self.steps:
             # Uncoil recursion if number of steps of look-ahead reached.
             for i in range(board.cols):
-                # Iterating over all possible actions and adding the new action to the node id.
+                # Iterating over all possible actions and adding the new action
+                # to the node id.
                 nid = parent + str(i)
 
                 if board.fullColCounter(i):
-                    # Fixed negative reward for heuristic if action column is full.
+                    # Fixed negative reward for heuristic if action column is
+                    # full.
                     tree.create_node(-(10 ** 10), nid, parent=parent)
                 else:
                     boardCopy = copy.deepcopy(board)
@@ -134,7 +143,8 @@ class LookAheadAgent(Agent):
                     if step != self.steps - 1:
                         # Whilst number of steps not reached, predict opposition's optimal turn, and add reward
                         # negatively to this node's reward.
-                        oppAction, oppReward = self._oppositionBestTurn(boardCopy, self.oppPlayer)
+                        oppAction, oppReward = self._oppositionBestTurn(
+                            boardCopy, self.oppPlayer)
                         boardCopy.updateBoard(oppAction, self.oppPlayer)
                         reward -= oppReward * 2
 
@@ -165,7 +175,8 @@ class LookAheadAgent(Agent):
         :return: List of strings representing optimal actions, all of which give an equal reward.
         """
         maxReward = max(allActions.values())
-        return [action for action, reward in allActions.items() if reward == maxReward]
+        return [action for action, reward in allActions.items()
+                if reward == maxReward]
 
     @staticmethod
     def _chooseAction(optimalActions: list[str]) -> int:
@@ -232,14 +243,16 @@ class RLAgent(Agent):
         actionProba = self._predictActionProba()
         action = np.argmax(actionProba)
         while self.board.getColCounter(int(action)) == self.board.rows:
-            # Selects action with the highest probability that doesn't correspond to a full column.
+            # Selects action with the highest probability that doesn't
+            # correspond to a full column.
             actionProba[action] = 0
             action = np.argmax(actionProba)
         return int(action)
 
 
 class PPOAgent(RLAgent):
-    def __init__(self, board: Board, filePath: str = 'connectx/models/PPO_6-7-4_v0.1/PPO_6-7-4_v0.1_50000'):
+    def __init__(self, board: Board,
+                 filePath: str = 'connectx/models/PPO_6-7-4_v0.1/PPO_6-7-4_v0.1_50000'):
         """
         Agent that uses a Proximal Policy Optimisation policy gradient method.
         """
@@ -251,10 +264,11 @@ class PPOAgent(RLAgent):
 
 
 class A2CAgent(RLAgent):
-    """
-    Agent that uses an Advantage Actor Critic policy gradient method.
-    """
-    def __init__(self, board: Board, filePath: str = 'connectx/models/A2C_6-7-4_v0.1/A2C_6-7-4_v0.1_50000'):
+    def __init__(self, board: Board,
+                 filePath: str = 'connectx/models/A2C_6-7-4_v0.1/A2C_6-7-4_v0.1_50000'):
+        """
+        Agent that uses an Advantage Actor Critic policy gradient method.
+        """
         super().__init__(board, filePath)
 
     @staticmethod

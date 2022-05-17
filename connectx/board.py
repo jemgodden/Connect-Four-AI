@@ -33,13 +33,16 @@ class Board:
         self.__winCondition: int = winCondition
 
         if winCondition > (rows and cols):
-            raise ValueError("The win condition cannot be larger than the number of rows and columns.")
+            raise ValueError(
+                "The win condition cannot be larger than the number of rows and columns.")
         if rows > 20 or cols > 20:
-            warnings.warn("The specified board size is quite large, consider making it smaller.")
+            warnings.warn(
+                "The specified board size is quite large, consider making it smaller.")
 
         self.__maxMoves: int = self.rows * self.cols
         self._boardArray: np.ndarray = np.zeros(self.maxMoves)
-        # Top left position of board is represented by 0th element of 1d matrix.
+        # Top left position of board is represented by 0th element of 1d
+        # matrix.
         self._colCounters: np.ndarray = np.zeros(self.cols)
 
     @property
@@ -94,8 +97,10 @@ class Board:
         :param column: Integer value for column in which the counter is being dropped.
         :param player: Integer value for player whose counter is being placed.
         """
-        # Construct the position of the new counter for the 1D board array using column counters.
-        position = int(((self.rows - self.getColCounter(column) - 1) * self.cols) + column)
+        # Construct the position of the new counter for the 1D board array
+        # using column counters.
+        position = int(
+            ((self.rows - self.getColCounter(column) - 1) * self.cols) + column)
 
         self.setBoardArrayElement(position, player)
         self.updateColCounter(column, 1)
@@ -124,7 +129,8 @@ class Board:
         """
         totalCount = 0
         for i in range(self.rows):
-            # counter represents a running total for number of counters in a row, for each row.
+            # counter represents a running total for number of counters in a
+            # row, for each row.
             counter = 0
             for j in range(self.cols):
                 # position is constructed from iterators.
@@ -145,7 +151,8 @@ class Board:
         """
         totalCount = 0
         for i in range(self.cols):
-            # counter represents a running total for number of counters in a row, for each column.
+            # counter represents a running total for number of counters in a
+            # row, for each column.
             counter = 0
             for j in range(self.rows):
                 # position is constructed from iterators.
@@ -230,7 +237,8 @@ class Board:
         :param inARow: Integer for the number of counters in a row being looked for.
         :return: Integer for how many times the specified number of counters in a row were found.
         """
-        return self._checkDiagonalsRL(player, inARow) + self._checkDiagonalsLR(player, inARow)
+        return self._checkDiagonalsRL(
+            player, inARow) + self._checkDiagonalsLR(player, inARow)
 
     def checkXInARow(self, player: int, inARow: int = None) -> int:
         """
@@ -241,7 +249,8 @@ class Board:
         :return: Integer for how many times the specified number of counters in a row were found.
         """
         if inARow is None:
-            # Default value for the number of counters in a row being looked for is the win condition.
+            # Default value for the number of counters in a row being looked
+            # for is the win condition.
             inARow = self.__winCondition
 
         return self._checkHorizontals(player, inARow) + self._checkVerticals(player, inARow
@@ -254,14 +263,16 @@ class Board:
         :param latestMove: Integer value indicating the last move made, so this can be indicated whilst printing to the
         console.
         """
-        # Print numerical label for each column of board at the top of the board.
+        # Print numerical label for each column of board at the top of the
+        # board.
         for j in range(self.cols):
             print((j + 1), end=' ')
 
         if latestMove is None:
             print('\n')
         else:
-            # If latest move is given, can print an arrow indicating in which column the latest counter was dropped.
+            # If latest move is given, can print an arrow indicating in which
+            # column the latest counter was dropped.
             print('\n', end='')
             for k in range(self.cols):
                 if k != latestMove:

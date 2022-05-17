@@ -42,9 +42,11 @@ class ConnectXEnv(gym.Env):
         self.action_space = gym.spaces.Discrete(self.game.board.cols)
 
         # self.prev_actions = None
-        # Removed this feature this can be classified as a Markov state game where history is irrelevant.
+        # Removed this feature this can be classified as a Markov state game
+        # where history is irrelevant.
         self.observation_space = gym.spaces.Box(low=-1, high=self.game.board.rows,
-                                                shape=(self.game.board.maxMoves + len(self.game.board.colCounters()),),
+                                                shape=(
+                                                    self.game.board.maxMoves + len(self.game.board.colCounters()),),
                                                 dtype=np.float64)
 
         self.firstTurn = True
@@ -55,7 +57,8 @@ class ConnectXEnv(gym.Env):
 
         :return: Integer defining the player value of the agent being trained.
         """
-        return [i+1 for i, name in enumerate(self.game.players) if name is None][0]
+        return [i + 1 for i,
+                name in enumerate(self.game.players) if name is None][0]
 
     def _calculateSubReward(self, player: int) -> float:
         """
@@ -67,7 +70,8 @@ class ConnectXEnv(gym.Env):
         """
         reward = 0
         for i in range(2, self.game.board.winCondition):
-            reward += self.game.board.checkXInARow(player, i) * (((i - 1) ** 2) * 0.005)
+            reward += self.game.board.checkXInARow(
+                player, i) * (((i - 1) ** 2) * 0.005)
         return reward
 
     def _trainingStep(self, action: int):
@@ -119,7 +123,8 @@ class ConnectXEnv(gym.Env):
         :return: Tuple containing the observation, reward, game-over flag, and info.
         """
         if self.firstTurn and self.opponentNum == 1:
-            # Check if first turn in the game is being played, and make the opponent take a turn if they are player 1.
+            # Check if first turn in the game is being played, and make the
+            # opponent take a turn if they are player 1.
             self.game.opponentTurn(self.opponentNum)
             self.firstTurn = False
 

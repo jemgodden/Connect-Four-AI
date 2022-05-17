@@ -7,7 +7,7 @@ if __name__ == '__main__':
     This file is used to play an exhibition game of Connect-X.
     Command line arguments can be used to configure the game, specifying parameters of the board, game and players.
     Use command -h or --help to see available arguments.
-    
+
     Usage:
     '''sh
     python3 connectx/play.py -p1 rand -p2 connectx/core/models/PPO_6-7-4_v0.1/PPO_6-7-4_v0.1_50000

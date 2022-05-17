@@ -34,7 +34,8 @@ class Learn:
         """
 
         if modelType not in self.MODEL_TYPES:
-            raise ValueError("Model policy specified is either invalid or not supported.")
+            raise ValueError(
+                "Model policy specified is either invalid or not supported.")
 
         if modelPlayer not in self.PLAYERS:
             raise ValueError("Player must be either 1 or 2.")
@@ -48,7 +49,12 @@ class Learn:
         self._modelPath = self.MODELS_DIR + f"{self._modelName}/"
         self._logsPath = self.LOGS_DIR
 
-        self._env = self._initEnv(modelPlayer, opponentName, rows, cols, winCondition)
+        self._env = self._initEnv(
+            modelPlayer,
+            opponentName,
+            rows,
+            cols,
+            winCondition)
         self._model = self._initModel(modelType, modelFile)
 
     def _initModel(self, modelType: str, modelFile: str or None) -> PPO or A2C:
@@ -62,16 +68,20 @@ class Learn:
         if modelType == 'PPO':
             if modelFile is None:
                 # Create default model if no filepath given.
-                return PPO('MlpPolicy', self._env, verbose=1, tensorboard_log=self._logsPath)
+                return PPO('MlpPolicy', self._env, verbose=1,
+                           tensorboard_log=self._logsPath)
             else:
-                return PPO.load(self.MODELS_DIR + modelFile, self._env, verbose=1, tensorboard_log=self._logsPath)
+                return PPO.load(self.MODELS_DIR + modelFile, self._env,
+                                verbose=1, tensorboard_log=self._logsPath)
 
         if modelType == 'A2C':
             if modelFile is None:
                 # Create default model if no filepath given.
-                return A2C('MlpPolicy', self._env, verbose=1, tensorboard_log=self._logsPath)
+                return A2C('MlpPolicy', self._env, verbose=1,
+                           tensorboard_log=self._logsPath)
             else:
-                return A2C.load(self.MODELS_DIR + modelFile, self._env, verbose=1, tensorboard_log=self._logsPath)
+                return A2C.load(self.MODELS_DIR + modelFile, self._env,
+                                verbose=1, tensorboard_log=self._logsPath)
 
     def updateModel(self, modelType: str, modelFile: str or None):
         """
@@ -85,7 +95,8 @@ class Learn:
         print("\nModel updated.\n")
 
     @staticmethod
-    def _initEnv(modelPlayer: int, opponentName: str, rows: int = 6, cols: int = 7, winCondition: int = 4):
+    def _initEnv(modelPlayer: int, opponentName: str,
+                 rows: int = 6, cols: int = 7, winCondition: int = 4):
         """
         Function used to initialise the environment, and game, the model will use for training.
 
@@ -97,14 +108,17 @@ class Learn:
         :return: Environment object for the Connect-X Environment being used to train the agent.
         """
         if modelPlayer == 1:
-            return ConnectXEnv(rows=rows, cols=cols, winCondition=winCondition, player2=opponentName)
-        return ConnectXEnv(rows=rows, cols=cols, winCondition=winCondition, player1=opponentName)
+            return ConnectXEnv(rows=rows, cols=cols,
+                               winCondition=winCondition, player2=opponentName)
+        return ConnectXEnv(rows=rows, cols=cols,
+                           winCondition=winCondition, player1=opponentName)
 
-    def updateEnv(self, modelPlayer: int, opponentName: str, rows: int = 6, cols: int = 7, winCondition: int = 4):
+    def updateEnv(self, modelPlayer: int, opponentName: str,
+                  rows: int = 6, cols: int = 7, winCondition: int = 4):
         """
         Function used to update the environment, and game, the model will use for training.
         Primarily used to change the opponent the agent will face.
-        Typically the rows, cols and winCondition should stay the same.
+        Typically, the rows, cols and winCondition should stay the same.
 
         :param modelPlayer: Integer player value for the agent being trained.
         :param opponentName: String indicating the opponent the agent is playing against.
@@ -113,7 +127,12 @@ class Learn:
         :param winCondition: Integer value for the number of counters in a row required to win.
         :return: Environment object for the Connect-X Environment being used to train the agent.
         """
-        self._env = self._initEnv(modelPlayer, opponentName, rows, cols, winCondition)
+        self._env = self._initEnv(
+            modelPlayer,
+            opponentName,
+            rows,
+            cols,
+            winCondition)
         print("\nEnvironment updated.\n")
 
     def train(self, numIterations: int, numTimesteps: int, logIters: int = 5):
@@ -128,6 +147,10 @@ class Learn:
         curIteration = 0
         while curIteration < numIterations:
             curIteration += 1
-            self._model.learn(total_timesteps=numTimesteps, reset_num_timesteps=False, tb_log_name=f"{self._modelName}")
+            self._model.learn(
+                total_timesteps=numTimesteps,
+                reset_num_timesteps=False,
+                tb_log_name=f"{self._modelName}")
             if curIteration % logIters == 0:
-                self._model.save(f"{self._modelPath}/{self._modelName}_{str(numTimesteps * curIteration)}")
+                self._model.save(
+                    f"{self._modelPath}/{self._modelName}_{str(numTimesteps * curIteration)}")
