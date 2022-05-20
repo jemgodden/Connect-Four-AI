@@ -66,7 +66,7 @@ if __name__ == '__main__':
     learn.updateEnv(modelPlayer=2, opponentName='look')
     learn.train(100, 10000)
 
-    # learn.updateEnv(modelPlayer=1, opponentName='connectx/core/models/PPO_6-7-4_v1.1/PPO_6-7-4_v1.1_1750000')
+    # learn.updateEnv(modelPlayer=1, opponentName='models/PPO_6-7-4_v1.1/PPO_6-7-4_v1.1_1750000')
     # learn.train(200, 10000)
-    # learn.updateEnv(modelPlayer=2, opponentName='connectx/core/models/PPO_6-7-4_v1.1/PPO_6-7-4_v1.1_1750000')
+    # learn.updateEnv(modelPlayer=2, opponentName='models/PPO_6-7-4_v1.1/PPO_6-7-4_v1.1_1750000')
     # learn.train(200, 10000)

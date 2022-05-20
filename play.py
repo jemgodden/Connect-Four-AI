@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     Usage:
     '''sh
-    python3 connectx/play.py -p1 rand -p2 connectx/core/models/PPO_6-7-4_v0.1/PPO_6-7-4_v0.1_50000
+    python3 play.py -p1 rand -p2 connectx/core/models/PPO_6-7-4_v0.1/PPO_6-7-4_v0.1_50000
     '''
     """
     parser = argparse.ArgumentParser()

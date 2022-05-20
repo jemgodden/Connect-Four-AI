@@ -96,8 +96,12 @@ class Game:
             return RandomAgent(self.board)
         elif agentLower == 'min':
             return MinimumAgent(self.board)
-        elif agentLower == 'look':
-            return LookAheadAgent(self.board, player, 3)
+        elif agentLower[:4] == 'look':
+            try:
+                steps = int(agentLower[4:])
+                return LookAheadAgent(self.board, player, steps)
+            except IndexError():
+                return LookAheadAgent(self.board, player)
         elif agentLower == 'ppo':
             return PPOAgent(self.board)
         elif agentLower == 'a2c':
@@ -204,7 +208,7 @@ class Game:
         # Check if win condition has been met at the end of each turn.
         return self.board.checkXInARow(player) > 0
 
-    def _allTurns(self) -> tuple[bool, int or None]:
+    def allTurns(self) -> int or None:
         """
         Iterate over all possible turns in the game, returning information early if the game is won/doesn't end in a
         draw.
@@ -224,9 +228,9 @@ class Game:
 
             gameOver = self._turn(player)
             if gameOver:
-                return gameOver, player
+                return player
 
-        return False, None
+        return None
 
     def play(self):
         """
@@ -240,9 +244,9 @@ class Game:
                 f"\nPlayer 1: {Fore.YELLOW}o{Style.RESET_ALL}\nPlayer 2: {Fore.RED}x{Style.RESET_ALL}\n")
 
         while not done:
-            gameOver, player = self._allTurns()
+            player = self.allTurns()
 
-            if gameOver:
+            if player:
                 print("\nPlayer {} wins!".format(player))
             else:
                 print("\nIt was a draw!")
