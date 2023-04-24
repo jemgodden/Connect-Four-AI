@@ -1,22 +1,19 @@
 import argparse
-from core import Game
+from connectx import Game
 
 
 if __name__ == '__main__':
     """
-    This file is used to play an exhibition game of connect-x.
-    
-    It can take in a number of command line arguments that specify parameters of the board, game and players/opponents.
+    This file is used to play an exhibition game of Connect-X.
+    Command line arguments can be used to configure the game, specifying parameters of the board, game and players.
+    Use command -h or --help to see available arguments.
+
     Usage:
     '''sh
-    python3 connectx/play.py -p1 rand -p2 connectx/models/PPO_v0.1/PPO_v0.1_200000
-
+    python3 play.py -p1 rand -p2 connectx/core/models/PPO_6-7-4_v0.1/PPO_6-7-4_v0.1_50000
     '''
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-v', '--verbose', action='store_false',
-                        help='Specify whether information should not be printed to the console.')
-    # Really need this? Doesn't make sense to let a game be played without verbose.
     parser.add_argument('-w', '--winCondition', type=int, nargs='?', default=4,
                         help='Specify number of counters in a row needed to win.')
     parser.add_argument('-r', '--rows', type=int, nargs='?', default=6,
@@ -29,11 +26,11 @@ if __name__ == '__main__':
                         help='Specify player 2 as an agent or human.')
     args = parser.parse_args()
 
-    game = Game(verbose=args.verbose,
-                winCondition=args.winCondition,
-                boardRows=args.rows,
-                boardCols=args.columns,
-                player1=args.player1,
-                player2=args.player2
-                )
+    game = Game(
+        winCondition=args.winCondition,
+        boardRows=args.rows,
+        boardCols=args.columns,
+        player1=args.player1,
+        player2=args.player2
+    )
     game.play()
