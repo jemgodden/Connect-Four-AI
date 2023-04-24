@@ -2,4 +2,6 @@
 __pycache__/
 venv/
 
-connectx/models/
+connectx/agents/models/
+
+todo.md

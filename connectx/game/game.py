@@ -1,8 +1,8 @@
 import random
 import time
 
-from connectx.board import Board
-from connectx.agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent, PPOAgent, A2CAgent
+from connectx.game.board import Board
+from connectx.agents.agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent, PPOAgent, A2CAgent
 
 from colorama import Fore, Style
 
