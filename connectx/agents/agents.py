@@ -1,5 +1,5 @@
 from abc import ABC
-from connectx.board import Board
+from connectx.game.board import Board
 
 import random
 import numpy as np

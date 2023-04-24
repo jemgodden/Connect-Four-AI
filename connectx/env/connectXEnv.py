@@ -1,5 +1,5 @@
 import gym
-from connectx.game import TrainingGame
+from connectx.game.game import TrainingGame
 
 import numpy as np
 
