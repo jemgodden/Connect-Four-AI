@@ -62,7 +62,7 @@ class LookAheadAgent(Agent):
         self.oppPlayer = 1 if player == 2 else 1
         super().__init__(board)
 
-    def _calculateRewards(self, board: Board, player: int = None) -> int:
+    def _calculateRewards(self, board: Board, player: int = None) -> float:
         """
         Calculate the heuristic rewards for the board state.
 
@@ -79,29 +79,37 @@ class LookAheadAgent(Agent):
             # Weighting applied to reward depending on size of connected
             # counters.
             reward += board.checkXInARow(player, i) * (i ** 3)
-        reward += board.checkXInARow(player, board.winCondition) * \
-            (board.winCondition ** 5)
+        reward += board.checkXInARow(player, board.winCondition) * (board.winCondition ** 10)
         return reward
 
-    def _oppositionBestTurn(
-            self, board: Board, oppPlayer: int) -> tuple[int, int]:
+    def _tryAction(self, action: int, player: int, board: Board) -> tuple[float, Board]:
+        """
+        Allows a player's potential action to be done and reward found.
+
+        :param action: Action being taken/tested.
+        :param player: Player value for player taking action.
+        :param board: Current state of the game's board.
+        :return: Integer value for the heuristic reward of action.
+        """
+        if board.fullColCounter(action):
+            # Return heavily negative reward if full column chosen.
+            return -(10 ** 100), board
+        boardCopy = copy.deepcopy(board)
+        boardCopy.updateBoard(action, player)
+        # Track all possible action, reward pair in dictionary.
+        return self._calculateRewards(boardCopy, player), boardCopy
+
+    def _oppositionBestTurn(self, board: Board) -> tuple[int, float]:
         """
         Finds the opponent's best turn, using the agent's heuristic, and takes it.
 
         :param board: Current state of the game's board.
-        :param oppPlayer: Opponent's player value.
         :return: Tuple of the opponent's best action and the reward they would get for it.
         """
         actions = {}
         for i in range(board.cols):
-            if board.fullColCounter(i):
-                # Return heavily negative reward if full column chosen.
-                actions[i] = -(10 ** 10)
-            else:
-                boardCopy = copy.deepcopy(board)
-                boardCopy.updateBoard(i, oppPlayer)
-                # Track all possible action, reward pair in dictionary.
-                actions[i] = self._calculateRewards(boardCopy, oppPlayer)
+            reward, boardCopy = self._tryAction(i, self.oppPlayer, board)
+            actions[i] = reward
 
         maxReward = max(actions.values())
         bestActions = [key for key, value in actions.items()
@@ -110,7 +118,7 @@ class LookAheadAgent(Agent):
         return bestAction, maxReward
 
     def _lookAhead(self, tree: Tree, board: Board,
-                   parent: str, parentReward: int, step: int):
+                   parent: str, parentReward: float, step: int):
         """
         Recursive function to create the look-ahead tree.
         looks 1 agent turn and 1 opposition turn ahead from the prior board state.
@@ -121,35 +129,30 @@ class LookAheadAgent(Agent):
         :param parentReward: The reward of the parent/previous turn.
         :param step: The current step of the look-ahead.
         """
-        if step != self.steps:
+        if step < self.steps:
             # Uncoil recursion if number of steps of look-ahead reached.
             for i in range(board.cols):
+                stepReward = parentReward
                 # Iterating over all possible actions and adding the new action
                 # to the node id.
                 nid = parent + str(i)
 
-                if board.fullColCounter(i):
-                    # Fixed negative reward for heuristic if action column is
-                    # full.
-                    tree.create_node(-(10 ** 10), nid, parent=parent)
-                else:
-                    boardCopy = copy.deepcopy(board)
-                    boardCopy.updateBoard(i, self.player)
-                    reward = parentReward + self._calculateRewards(boardCopy)
-                    # Add updated copy of previous board with action, and corresponding reward, as a new node from
-                    # previous action node.
-                    tree.create_node(reward, nid, parent=parent)
+                reward, boardCopy = self._tryAction(i, self.player, board)
+                stepReward += reward * (1 - (step/(10 + self.steps)))
+                # Add updated copy of previous board with action, and corresponding reward, as a new node from
+                # previous action node.
+                tree.create_node(reward, nid, parent=parent)
 
-                    if step != self.steps - 1:
-                        # Whilst number of steps not reached, predict opposition's optimal turn, and add reward
-                        # negatively to this node's reward.
-                        oppAction, oppReward = self._oppositionBestTurn(
-                            boardCopy, self.oppPlayer)
-                        boardCopy.updateBoard(oppAction, self.oppPlayer)
-                        reward -= oppReward * 2
+                if step < self.steps - 1:
+                    # Whilst number of steps not reached, predict opposition's optimal turn, and add reward
+                    # negatively to this node's reward.
+                    oppAction, oppReward = self._oppositionBestTurn(boardCopy)
+                    boardCopy.updateBoard(oppAction, self.oppPlayer)
+                    # Multiplying opponent reward to make agent more defensive.
+                    reward -= oppReward * 1.2
 
-                    # From this node, look ahead another step.
-                    self._lookAhead(tree, boardCopy, nid, reward, step + 1)
+                # From this node, look ahead another step.
+                self._lookAhead(tree, boardCopy, nid, reward, step + 1)
 
     def _lookAheadNSteps(self) -> dict[str: int]:
         """

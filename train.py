@@ -40,7 +40,53 @@ if __name__ == '__main__':
                         help='Specify number of counters in a row needed to win.')
     args = parser.parse_args()
 
-    subVersion = 1
+    # subVersion = 1
+    # modelVersion = f"v{args.modelVersion}.{subVersion}"
+
+    # learn = Learn(modelType=args.modelType,
+    #               modelVersion=modelVersion,
+    #               modelFile=args.modelFile,
+    #               modelPlayer=args.modelPlayer,
+    #               opponentName=args.opponentName,
+    #               rows=args.rows,
+    #               cols=args.columns,
+    #               winCondition=args.winCondition)
+
+    # subVersion = 1
+    # modelVersion = f"v{args.modelVersion}.{subVersion}"
+
+    # learn.train(25, 10000)
+    # learn.updateEnv(modelPlayer=2, opponentName='min')
+    # learn.train(25, 10000)
+    #
+    # learn.updateEnv(modelPlayer=1, opponentName='rand')
+    # learn.train(75, 10000)
+    # learn.updateEnv(modelPlayer=2, opponentName='rand')
+    # learn.train(75, 10000)
+    #
+    # learn.updateEnv(modelPlayer=1, opponentName='look3')
+    # learn.train(150, 10000)
+    # learn.updateEnv(modelPlayer=2, opponentName='look3')
+    # learn.train(150, 10000)
+
+    # subVersion = 2
+    # modelVersion = f"v{args.modelVersion}.{subVersion}"
+    #
+    # learn = Learn(modelType=args.modelType,
+    #               modelVersion=modelVersion,
+    #               modelFile=args.modelFile,
+    #               modelPlayer=args.modelPlayer,
+    #               opponentName=args.opponentName,
+    #               rows=args.rows,
+    #               cols=args.columns,
+    #               winCondition=args.winCondition)
+    #
+    # learn.updateEnv(modelPlayer=1, opponentName='look3')
+    # learn.train(150, 10000)
+    # learn.updateEnv(modelPlayer=2, opponentName='look3')
+    # learn.train(150, 10000)
+
+    subVersion = 3
     modelVersion = f"v{args.modelVersion}.{subVersion}"
 
     learn = Learn(modelType=args.modelType,
@@ -52,21 +98,7 @@ if __name__ == '__main__':
                   cols=args.columns,
                   winCondition=args.winCondition)
 
-    learn.train(25, 10000)
-    learn.updateEnv(modelPlayer=2, opponentName='min')
-    learn.train(25, 10000)
-
-    learn.updateEnv(modelPlayer=1, opponentName='rand')
-    learn.train(50, 10000)
-    learn.updateEnv(modelPlayer=2, opponentName='rand')
-    learn.train(50, 10000)
-
-    learn.updateEnv(modelPlayer=1, opponentName='look')
-    learn.train(100, 10000)
-    learn.updateEnv(modelPlayer=2, opponentName='look')
-    learn.train(100, 10000)
-
-    # learn.updateEnv(modelPlayer=1, opponentName='models/PPO_6-7-4_v1.1/PPO_6-7-4_v1.1_1750000')
-    # learn.train(200, 10000)
-    # learn.updateEnv(modelPlayer=2, opponentName='models/PPO_6-7-4_v1.1/PPO_6-7-4_v1.1_1750000')
-    # learn.train(200, 10000)
+    learn.updateEnv(modelPlayer=1, opponentName='models/PPO_6-7-4_v1.2/PPO_6-7-4_v1.2_1500000')
+    learn.train(250, 10000)
+    learn.updateEnv(modelPlayer=2, opponentName='models/PPO_6-7-4_v1.2/PPO_6-7-4_v1.2_1500000')
+    learn.train(250, 10000)

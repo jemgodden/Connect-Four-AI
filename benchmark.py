@@ -15,7 +15,7 @@ if __name__ == '__main__':
     '''
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-g', '--games', type=int, nargs='?', default=20,
+    parser.add_argument('-g', '--games', type=int, nargs='?', default=25,
                         help='Number of games to be played between the agents in each player position.')
     parser.add_argument('-w', '--winCondition', type=int, nargs='?', default=4,
                         help='Specify number of counters in a row needed to win.')
@@ -35,8 +35,8 @@ if __name__ == '__main__':
         "loss": 0
     }
 
-    print(f"Agent being benchmarked: {args.agent}")
-    print(f"Benchmark agent: {args.benchmarkAgent}\n\n")
+    print(f"\nAgent being benchmarked: {args.agent}")
+    print(f"Benchmark agent: {args.benchmarkAgent}\n")
 
     game1 = Game(
         verbose=False,
@@ -79,5 +79,5 @@ if __name__ == '__main__':
         game2.board.resetBoard()
     print("Player 2 games complete.\n")
 
-    print(f"Agent overall win percentage: {(outcomes['win']/(2 * args.games)) * 100}%")
+    print(f"Agent overall win percentage: {(outcomes['win'] * 100)/(2 * args.games):.2f}%")
     print(f"Agent overall record: {outcomes['win']} Wins, {outcomes['draw']} Draws, {outcomes['loss']} Losses")

@@ -71,7 +71,7 @@ class ConnectXEnv(gym.Env):
         reward = 0
         for i in range(2, self.game.board.winCondition):
             reward += self.game.board.checkXInARow(
-                player, i) * (((i - 1) ** 2) * 0.005)
+                player, i) * ((i ** 2) * 0.001)
         return reward
 
     def _trainingStep(self, action: int):
