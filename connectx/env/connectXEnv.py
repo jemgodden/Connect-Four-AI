@@ -46,7 +46,7 @@ class ConnectXEnv(gym.Env):
         # where history is irrelevant.
         self.observation_space = gym.spaces.Box(low=-1, high=self.game.board.rows,
                                                 shape=(
-                                                    self.game.board.maxMoves + len(self.game.board.colCounters()),),
+                                                    self.game.board.maxMoves + len(self.game.board.col_counters()),),
                                                 dtype=np.float64)
 
         self.firstTurn = True
@@ -70,7 +70,7 @@ class ConnectXEnv(gym.Env):
         """
         reward = 0
         for i in range(2, self.game.board.winCondition):
-            reward += self.game.board.checkXInARow(
+            reward += self.game.board.check_for_lines(
                 player, i) * ((i ** 2) * 0.001)
         return reward
 
@@ -84,7 +84,7 @@ class ConnectXEnv(gym.Env):
         done = False
         reward = 0.0
 
-        if self.game.board.getColCounter(action) == self.game.board.rows:
+        if self.game.board.get_col_counter(action) == self.game.board.rows:
             # Ends game if column full.
             reward = -10.0
             done = True
@@ -93,7 +93,7 @@ class ConnectXEnv(gym.Env):
             # Agent being trained takes its turn.
             self.game.trainingAgentTurn(action, self.agentNum)
             # Checks if action caused game to end in a win for training agent.
-            if self.game.board.checkXInARow(self.agentNum) > 0:
+            if self.game.board.check_for_lines(self.agentNum) > 0:
                 reward += 10.0
                 done = True
             else:
@@ -103,7 +103,7 @@ class ConnectXEnv(gym.Env):
                 # Opponent gets to take turn.
                 self.game.opponentTurn(self.opponentNum)
                 # Check if opponent's turn ended game.
-                if self.game.board.checkXInARow(self.opponentNum) > 0:
+                if self.game.board.check_for_lines(self.opponentNum) > 0:
                     reward = -10.0
                     done = True
                 else:
@@ -111,7 +111,7 @@ class ConnectXEnv(gym.Env):
                     reward -= self._calculateSubReward(self.opponentNum)
 
         # Create observation space and return relevant information.
-        observation = self.game.board.getObservation()
+        observation = self.game.board.get_observation()
         info = {}
         return observation, reward, done, info
 
@@ -136,10 +136,10 @@ class ConnectXEnv(gym.Env):
 
         :return observation: Return the observation of the reset board.
         """
-        self.game.board.resetBoard()
+        self.game.board.reset_board()
         self.firstTurn = True
 
-        observation = self.game.board.getObservation()
+        observation = self.game.board.get_observation()
         return observation  # reward, done, info can't be included
 
     def render(self, mode='human'):
@@ -148,6 +148,6 @@ class ConnectXEnv(gym.Env):
 
         :param mode: The type of render to display.
         """
-        self.game.board.printBoard(None)
+        self.game.board.print_board(None)
 
     # def close (self):

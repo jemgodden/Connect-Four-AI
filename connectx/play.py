@@ -14,7 +14,7 @@ if __name__ == '__main__':
     '''
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('-w', '--winCondition', type=int, nargs='?', default=4,
+    parser.add_argument('-w', '--win_condition', type=int, nargs='?', default=4,
                         help='Specify number of counters in a row needed to win.')
     parser.add_argument('-r', '--rows', type=int, nargs='?', default=6,
                         help='Specify number of rows on board.')
@@ -27,9 +27,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     game = Game(
-        winCondition=args.winCondition,
-        boardRows=args.rows,
-        boardCols=args.columns,
+        win_condition=args.win_condition,
+        board_rows=args.rows,
+        board_cols=args.columns,
         player1=args.player1,
         player2=args.player2
     )
