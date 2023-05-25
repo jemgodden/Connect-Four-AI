@@ -1,20 +1,25 @@
-import random
-import time
-
 from connectx.game.board import Board
-from connectx.agents.agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent, PPOAgent, A2CAgent
+from connectx.players.players import Player, UserPlayer
+from connectx.players.agents.agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent
 
 from colorama import Fore, Style
 
 
 class Game:
-    def __init__(self,
-                 verbose: bool = True,
-                 boardRows: int = 6,
-                 boardCols: int = 7,
-                 winCondition: int = 4,
-                 player1: str or None = None,
-                 player2: str or None = None):
+
+    NO_WIN = 0
+    WIN = 1
+    FULL_COLUMN_WIN = 2
+
+    def __init__(
+            self,
+            verbose: bool = True,
+            board_rows: int = 6,
+            board_cols: int = 7,
+            win_condition: int = 4,
+            player1: str or None = None,
+            player2: str or None = None
+    ):
         """
         This class is used to play a game of Connect-X.
 
@@ -27,13 +32,13 @@ class Game:
         '''
 
         :param verbose: Bool that indicates whether any information should be printed about that game.
-        :param boardRows: Int value for the number of rows the game board will have.
-        :param boardCols: Int value for the number of columns the game board will have.
-        :param winCondition: Int value for the required number of counters in a row in order to win the game.
+        :param board_rows: Int value for the number of rows the game board will have.
+        :param board_cols: Int value for the number of columns the game board will have.
+        :param win_condition: Int value for the required number of counters in a row in order to win the game.
         :param player1: String that specifies who will be player 1, or what file should be loaded.
         :param player2: String that specifies who will be player 2, or what file should be loaded.
         """
-        self.board: Board = Board(boardRows, boardCols, winCondition)
+        self.board: Board = Board(board_rows, board_cols, win_condition)
 
         if not isinstance(verbose, bool):
             raise TypeError("verbose must be a bool.")
@@ -43,172 +48,101 @@ class Game:
             raise TypeError("player1 must be a string or None.")
         if player2 is not None and not isinstance(player2, str):
             raise TypeError("player2 must be a string or None.")
+
         self.__players: list[Agent or None] = [
-            self._assignPlayer(player1, 1), self._assignPlayer(player2, 2)]
+            self._initialise_player(player1, 1),
+            self._initialise_player(player2, 2)
+        ]
 
     @property
-    def players(self) -> list[Agent or None]:
+    def players(self) -> list[Player]:
         return self.__players
 
-    def player(self, i: int) -> Agent or None:
+    def player(self, i: int) -> Player:
         return self.__players[i - 1]
 
-    def _userPlayer(self, player: int) -> bool:
-        """
-        Function used to determine if player is a user or an agent.
-
-        :param player: Integer player value for specific player.
-        :return: Boolean to indicate if player value given represents a user player. True if user player.
-        """
-        return self.player(player) is None
-
-    def _useAgentFile(self, agentFilePath: str) -> Agent:
+    def _use_agent_file(self, agent_file_path: str, player_num: int) -> Agent:
         """
         Function that uses a model's filepath to load in an agent.
 
-        :param agentFilePath: String for filepath of agent model being loaded.
+        :param agent_file_path: String for filepath of agent model being loaded.
+        :param player_num: Integer value for which player in the game it is.
         :return: Agent being initialised.
         """
-        agentDirs = agentFilePath.split('/')
-        # Split the filepath by forward slash and filter to find agent
-        # algorithm to load.
-        if agentDirs[-1][:3] == 'PPO':
-            return PPOAgent(self.board, agentFilePath)
-        elif agentDirs[-1][:3] == 'A2C':
-            return A2CAgent(self.board, agentFilePath)
+        agent_dirs = agent_file_path.split('/')
+        # Split the filepath by forward slash and filter to find agent algorithm to load.
+        if agent_dirs[-1][:3] == 'PPO':
+            return PPOAgent(player_num, self.board, self.verbose, agent_file_path)
+        elif agent_dirs[-1][:3] == 'A2C':
+            return A2CAgent(player_num, self.board, self.verbose, agent_file_path)
         else:
             raise ValueError(
-                f"Specified agent filepath \'{agentFilePath}\' does not exist or is not supported.")
+                f"Specified agent filepath \'{agent_file_path}\' does not exist or is not supported.")
 
-    def _initialiseAgent(self, agent: str, player: int) -> Agent:
+    def _initialise_agent(self, agent_name: str, player_num: int) -> Agent:
         """
         Initialises an agent to play the game.
 
-        :param agent: String that specifies the agent that will play, or contains a filepath to an agent model to be
-                      loaded in.
+        :param agent_name: String that specifies the agent that will play, or contains a filepath to an agent model to
+            be loaded in.
+        :param player_num: Integer value to indicate which player the agent is.
         :return: Agent class for chosen agent.
         """
-        if '/' in agent:
-            return self._useAgentFile(agent)
+        if '/' in agent_name:
+            return self._use_agent_file(agent_name, player_num)
 
-        agentLower = str.lower(agent)
-        if agentLower == 'rand':
-            return RandomAgent(self.board)
-        elif agentLower == 'min':
-            return MinimumAgent(self.board)
-        elif agentLower[:4] == 'look':
+        agent_name = str.lower(agent_name)
+        if agent_name == 'rand':
+            return RandomAgent(player_num, self.board, self.verbose)
+        elif agent_name == 'min':
+            return MinimumAgent(player_num, self.board, self.verbose)
+        elif agent_name[:4] == 'look':
             try:
-                steps = int(agentLower[4:])
-                return LookAheadAgent(self.board, player, steps)
+                steps = int(agent_name[4:])
+                if steps > 10:
+                    raise ValueError(f"It is inadvisable to use more than 10 steps.")
+                return LookAheadAgent(player_num, self.board, self.verbose, steps)
             except IndexError():
-                return LookAheadAgent(self.board, player)
-        elif agentLower == 'ppo':
-            return PPOAgent(self.board)
-        elif agentLower == 'a2c':
-            return A2CAgent(self.board)
+                return LookAheadAgent(player_num, self.board, self.verbose)
+        elif agent_name == 'ppo':
+            return PPOAgent(player_num, self.board, self.verbose)
+        elif agent_name == 'a2c':
+            return A2CAgent(player_num, self.board, self.verbose)
         else:
-            raise ValueError(f"Specified agent \'{agent}\' is either invalid.")
+            raise ValueError(f"Specified agent \'{agent_name}\' is either invalid.")
 
-    def _assignPlayer(self, playerName: str or None,
-                      player: int) -> Agent or None:
+    def _initialise_player(self, player_name: str or None, player_num: int) -> Player:
         """
         Function to determine if user playing as current player, and initialises specified agent if not.
 
-        :param player: String that specifies whether this player is an agent or not (None).
+        :param player_name: String that specifies whether this player is an agent or not (None).
+        :param player_num: Integer value to indicate which player the player is.
         :return: None if human player, else Agent class for chosen agent.
         """
-        if playerName is not None:
-            return self._initialiseAgent(playerName, player)
-        return None
+        if player_name is not None:
+            return self._initialise_agent(player_name, player_num)
+        return UserPlayer(player_num, self.board)
 
-    def _checkColValue(self, column: str) -> str or int:
-        """
-        Checks whether user column choice is possible.
-        Forces user to re-enter column choice if not possible, until it is.
-
-        :param column: Integer value for current players choice of column.
-        :return column: Integer value of column if it is viable, else return string input by the user.
-        """
-        try:
-            int(column)
-        except ValueError:
-            print("This is not a numerical input. Please try again.")
-            return column
-
-        arrCol = int(column) - 1
-
-        if arrCol > (self.board.cols - 1) or arrCol < 0:
-            print("This is not a valid column. Please try again.")
-            return column
-
-        if self.board.fullColCounter(arrCol):
-            print("This is column is full. Please try again.")
-            return column
-
-        return int(column)
-
-    def _playerTurn(self, player: int) -> int:
-        """
-        Function that allows the user to take a turn.
-
-        :param player: Integer value representing which player's go it is.
-        :return: Boolean indicating whether the win condition has been met.
-        """
-        column = None
-        while not isinstance(column, int):
-            # Reads in current players choice of column, checks whether it is possible, and executes it if so.
-            # Forces user to re-enter column choice if not possible, until it
-            # is.
-            column = input("Please choose a column to drop a counter in:\n")
-            column = self._checkColValue(column)
-
-        # Convert column choice to an action (the correct format for the
-        # program).
-        action = column - 1
-        self.board.updateBoard(action, player)
-        return action
-
-    def _agentTurn(self, player: int) -> tuple[bool, int]:
-        """
-        Agent (non-user) takes their turn.
-
-        :param player: Integer value representing which player's go it is.
-        :return: Boolean indicating whether the win condition has been met.
-        """
-        if self.verbose:
-            print("Agent is choosing a move...\n")
-            time.sleep(random.uniform(0.8, 1.2))
-
-        column = self.player(player).performTurn()
-        if self.board.fullColCounter(column):
-            # If agent chooses a full column, end the game.
-            return True, column
-
-        self.board.updateBoard(column, player)
-        return False, column
-
-    def _turn(self, player: int) -> bool:
+    def _turn(self, player: Player) -> int:
         """
         Complete a player's (user o agent) turn within the game.
 
         :param player: Integer indicating which player's go it is.
         :return player: Boolean representing whether the game is over.
         """
-        if not self._userPlayer(player):
-            fullColumn, action = self._agentTurn(player)
-            if fullColumn:
-                # End game if a full column is chosen.
-                return True
-        else:
-            action = self._playerTurn(player)
+        action = player.perform_turn()
 
+        if self.board.check_col_full(action):
+            return self.FULL_COLUMN_WIN
+
+        self.board.update_board(action, player.player_num)
         if self.verbose:
-            self.board.printBoard(action)
+            self.board.print_board(action)
 
         # Check if win condition has been met at the end of each turn.
-        return self.board.checkXInARow(player) > 0
+        return self.WIN if self.board.check_for_lines(player.player_num) > 0 else self.NO_WIN
 
-    def allTurns(self) -> int or None:
+    def all_turns(self) -> int or None:
         """
         Iterate over all possible turns in the game, returning information early if the game is won/doesn't end in a
         draw.
@@ -217,18 +151,20 @@ class Game:
                  or None if a draw occurred.
         """
         if self.verbose:
-            self.board.printBoard(None)
+            self.board.print_board(None)
 
-        for i in range(self.board.maxMoves):
+        for i in range(self.board.max_moves):
             # Player value switches between 1 and 2.
-            player = (i % 2) + 1
+            cur_player = (i % 2) + 1
 
             if self.verbose:
-                print("\nPlayer {}'s go...".format(player))
+                print("\nPlayer {}'s go...".format(cur_player))
 
-            gameOver = self._turn(player)
-            if gameOver:
-                return player
+            win_flag = self._turn(self.player(cur_player))
+            if win_flag is self.WIN:
+                return cur_player
+            if win_flag is self.FULL_COLUMN_WIN:
+                return 1 if cur_player == 2 else 2
 
         return None
 
@@ -244,62 +180,15 @@ class Game:
                 f"\nPlayer 1: {Fore.YELLOW}o{Style.RESET_ALL}\nPlayer 2: {Fore.RED}x{Style.RESET_ALL}\n")
 
         while not done:
-            player = self.allTurns()
+            winning_player = self.all_turns()
 
-            if player:
-                print("\nPlayer {} wins!".format(player))
-            else:
-                print("\nIt was a draw!")
+            if self.verbose:
+                if winning_player:
+                    print("\nPlayer {} wins!".format(winning_player))
+                else:
+                    print("\nIt was a draw!")
 
             done = str.upper(input("\nPlay again? (Y/N):\n")) != 'Y'
             if not done:
                 print("\n")
-                self.board.resetBoard()
-
-
-class TrainingGame(Game):
-    def __init__(self,
-                 verbose: bool = False,
-                 boardRows: int = 6,
-                 boardCols: int = 7,
-                 winCondition: int = 4,
-                 player1: str or None = 'rand',
-                 player2: str or None = None):
-        """
-        Child class of Game used by RL agents to run Connect-X games for training purposes.
-
-        :param verbose: Bool that indicates whether any information should be printed about that game.
-        :param boardRows: Int value for the number of rows the game board will have.
-        :param boardCols: Int value for the number of columns the game board will have.
-        :param winCondition: Int value for the required number of counters in a row in order to win the game.
-        :param player1: String that specifies who will be player 1, or what file should be loaded.
-        :param player2: String that specifies who will be player 2, or what file should be loaded.
-        """
-        super().__init__(verbose=verbose,
-                         boardRows=boardRows,
-                         boardCols=boardCols,
-                         winCondition=winCondition,
-                         player1=player1,
-                         player2=player2)
-
-        if (player1 is None and player2 is None) or (
-                player1 is not None and player2 is not None):
-            raise Exception("Exactly one player must be a predefined agent.")
-
-    def opponentTurn(self, oppPlayer: int = 1):
-        """
-        Function used to allow training agent's opponent to take their turn.
-
-        :param oppPlayer: Integer player value for the agent's opponent.
-        """
-        self._turn(oppPlayer)
-
-    def trainingAgentTurn(self, action: int, agentPlayer: int):
-        """
-        Update the board with the training agent's action, on its turn.
-
-        :param action: Integer representing the action the agent will take (column it will drop a counter in) on its
-                       turn.
-        :param agentPlayer: Integer player value for the training agent.
-        """
-        self.board.updateBoard(action, agentPlayer)
+                self.board.reset_board()
