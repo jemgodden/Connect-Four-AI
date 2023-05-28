@@ -187,7 +187,6 @@ class LookAheadAgent(Agent):
         super().perform_turn()
         all_actions = self._look_ahead_N_steps()
         action, max_reward = self._choose_optimal_action(all_actions)
-        print(action)
         return action
 
 
