@@ -1,3 +1,5 @@
+import logging
+
 from connectx.game.board import Board
 from connectx.players.players import Player, UserPlayer
 from connectx.players.agents.agents import Agent, RandomAgent, MinimumAgent, LookAheadAgent
@@ -54,12 +56,20 @@ class Game:
             self._initialise_player(player2, 2)
         ]
 
+        logging.info(f"The game board will have {board_rows} rows and {board_cols} columns, with a win condition of "
+                     f"{win_condition}.")
+        logging.info(f"Player 1 is a {type(self.player(1))}, and player 2 is a {type(self.player(2))}")
+
     @property
     def players(self) -> list[Player]:
         return self.__players
 
     def player(self, i: int) -> Player:
         return self.__players[i - 1]
+
+    @staticmethod
+    def _get_other_player(self, cur_player: int):
+        return 1 if cur_player == 2 else 2
 
     def _use_agent_file(self, agent_file_path: str, player_num: int) -> Agent:
         """
@@ -154,17 +164,22 @@ class Game:
             self.board.print_board(None)
 
         for i in range(self.board.max_moves):
+            logging.info(f"Turn {i+1}:")
             # Player value switches between 1 and 2.
             cur_player = (i % 2) + 1
+            logging.info(f"Player {cur_player}'s go.")
 
             if self.verbose:
-                print("\nPlayer {}'s go...".format(cur_player))
+                print(f"\nPlayer {cur_player}'s go...")
 
             win_flag = self._turn(self.player(cur_player))
             if win_flag is self.WIN:
+                logging.info(f"Player {cur_player} won the game.")
                 return cur_player
-            if win_flag is self.FULL_COLUMN_WIN:
-                return 1 if cur_player == 2 else 2
+            elif win_flag is self.FULL_COLUMN_WIN:
+                logging.info(f"Player {cur_player} tried to put a counter in a full column, so player "
+                             f"{self._get_other_player(cur_player)} won the game.")
+                return self._get_other_player(cur_player)
 
         return None
 
@@ -176,19 +191,18 @@ class Game:
 
         if self.verbose:
             # Show information on how each player can be identified.
-            print(
-                f"\nPlayer 1: {Fore.YELLOW}o{Style.RESET_ALL}\nPlayer 2: {Fore.RED}x{Style.RESET_ALL}\n")
+            print(f"\nPlayer 1: {Fore.YELLOW}o{Style.RESET_ALL}\nPlayer 2: {Fore.RED}x{Style.RESET_ALL}\n")
 
         while not done:
             winning_player = self.all_turns()
 
             if self.verbose:
                 if winning_player:
-                    print("\nPlayer {} wins!".format(winning_player))
+                    print(f"\nPlayer {winning_player} wins!")
                 else:
                     print("\nIt was a draw!")
 
-            done = str.upper(input("\nPlay again? (Y/N):\n")) != 'Y'
-            if not done:
-                print("\n")
-                self.board.reset_board()
+                done = str.upper(input("\nPlay again? (Y/N):\n")) != 'Y'
+                if not done:
+                    print("\n")
+                    self.board.reset_board()

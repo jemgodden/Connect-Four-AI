@@ -1,3 +1,6 @@
+import os
+from datetime import datetime
+import logging
 import argparse
 from connectx import Game
 
@@ -25,6 +28,18 @@ if __name__ == '__main__':
     parser.add_argument('-p2', '--player2', type=str, nargs='?', default=None,
                         help='Specify player 2 as an agent or human.')
     args = parser.parse_args()
+
+    logs_path = "logs/play"
+    if not os.path.exists(logs_path):
+        os.makedirs(logs_path)
+
+    logging.basicConfig(
+        filename=f"{logs_path}/session_{datetime.now().strftime('%d-%m-%Y_%H:%M:%S')}.log",
+        format='%(asctime)s %(message)s',
+        filemode='w',
+        level=logging.INFO
+    )
+    logger = logging.getLogger("playLogger")
 
     game = Game(
         win_condition=args.win_condition,

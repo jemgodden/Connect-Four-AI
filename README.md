@@ -1,45 +1,39 @@
 # Connect-Four-AI
 
-## Aims
+## Background
 
-The aims of this repository are:
-* Ensure that the entire project is created whilst adhering to good coding practices and the object-orientated programming paradigm.
-* Train a Reinforcement Learning agent to play Connect Four against a human opponent, and win.
+The primary aim of this project is to create and train a reinforcement learning (RL) agent to play the board game Connect Four.
+Connect Four was chosen as it is a simple game that can be used as a starting place to learn about reinforcement learning and to begin developing RL agents and environments.
+It is worth acknowledging that a standard game of Connect Four is [solvable](https://connect4.gamesolver.org/#) using an efficient tree-search algorithm of all possible moves. Thus, the standard agents developed will not be groundbreaking by any means.
 
-I understand that Connect Four is a solvable game with the use of an efficient tree-search algorithm of all possible moves.
-However, the primary purpose of this project is for me to develop my knowledge of reinforcement learning algorithms and environments in which they can learn.
+In addition, I believe it would be interesting to see how a reinforcement learning agent would perform on a larger game board against a human player.
+The theory is that a larger game board is unsolvable, and that a RL Agent will outperform a human player.
 
-In addition, I believe it would be interesting to see how a reinforcement learning agent would perform on a larger game board, in comparison to a human player, with the theory that a larger game board would be unsolvable.
+A final aim of this project is to practice writing complete, production-level code that adheres to common programming principles.
 
 ## Connect Four
 
-Connect four is a board game played between two people who take it in turns to drop a counter into one of7 columns, each of which is usually 6 spaces high.
-The aim is to be the first person to have a line of 4 counters in any horizontal, vertical or diagonal row.
+[Connect Four](https://en.wikipedia.org/wiki/Connect_Four) is a board game played between two people who take it in turns to drop a counter into one of 7 columns, each of which typically has 6 spaces.
+The aim of the game is to be the first person to have a line of 4 counters in any horizontal, vertical or diagonal row.
 
 ## The Agents
 
-I hope to use Reinforcement Learning algorithms, specifically policy gradient methods, to create agents.
-These agents will be trained by making them play games against other agents, and themselves (self-play).
+I hope to use reinforcement learning algorithms, specifically policy gradient methods, to create agents.
+These agents will be trained by making them play games against other simple agents, heuristic agents, and other RL agents, or event themselves (self-play).
 
-To do this, I will use the Gym Environments and Stable-Baselines to create the agents.
+I will create these agents, and the environment, using the TensorFlow framework.
 
-## Downloading
+## Usage
 
-The easiest way to download the code is to press the download button on the home page of the GitHub repository.
-
-## Use
-
-The best way to use the program currently is to call it from the command line using:
+The best way to play an exhibition game is to call the play.py script from the command line using:
 
 ```sh
-python3 play.py -p2 ppo
+python3 play.py -p2 look
 ```
-
-This will let you play an exhibition game against a default RL agent.
 
 ## Next Steps
 
-The next steps are:
-* Create a GUI for the game to better show the board during the game.
-* Improve upon current agents.
+The next steps for this project are:
+* Create a GUI for the game.
+* Train an agent on a larger board using Cloud Computing resources.
 * Look into multi-agent environments for true self-play.
