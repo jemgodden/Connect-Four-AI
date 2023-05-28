@@ -55,7 +55,7 @@ if __name__ == '__main__':
             outcomes["loss"] += 1
         else:
             outcomes["draw"] += 1
-        game1.board.resetBoard()
+        game1.board.reset_board()
     print("Player 1 games complete.\n")
     print(f"Agent record as player 1: {outcomes['win']} Wins, {outcomes['draw']} Draws, {outcomes['loss']} Losses\n")
 
@@ -76,7 +76,7 @@ if __name__ == '__main__':
             outcomes["loss"] += 1
         else:
             outcomes["draw"] += 1
-        game2.board.resetBoard()
+        game2.board.reset_board()
     print("Player 2 games complete.\n")
 
     print(f"Agent overall win percentage: {(outcomes['win'] * 100)/(2 * args.games):.2f}%")

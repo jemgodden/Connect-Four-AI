@@ -4,15 +4,13 @@ import numpy as np
 
 
 class Board:
-    def __init__(self, rows: int = 6,
-                 cols: int = 7,
-                 winCondition: int = 4):
+    def __init__(self, rows: int = 6, cols: int = 7, win_condition: int = 4):
         """
         This class is used to create and update the game board during a connect-x game.
 
         :param rows: Integer value for the number of rows the board will have.
         :param cols: Integer value for the number of columns the board will have.
-        :param winCondition: Integer value for the number of counters in a row required to win.
+        :param win_condition: Integer value for the number of counters in a row required to win.
         """
         if type(rows) is not int:
             raise TypeError("rows must be an integer.")
@@ -26,24 +24,22 @@ class Board:
             raise ValueError("cols must be larger than 0.")
         self.__cols: int = cols
 
-        if type(winCondition) is not int:
-            raise TypeError("winCondition must be an integer.")
+        if type(win_condition) is not int:
+            raise TypeError("win_condition must be an integer.")
         if cols <= 0:
-            raise ValueError("winCondition must be larger than 0.")
-        self.__winCondition: int = winCondition
+            raise ValueError("win_condition must be larger than 0.")
+        self.__win_condition: int = win_condition
 
-        if winCondition > (rows and cols):
-            raise ValueError(
-                "The win condition cannot be larger than the number of rows and columns.")
+        if win_condition > (rows and cols):
+            raise ValueError("The win condition cannot be larger than the number of rows and columns.")
         if rows > 20 or cols > 20:
-            warnings.warn(
-                "The specified board size is quite large, consider making it smaller.")
+            warnings.warn("The specified board size is quite large, consider making it smaller.")
 
-        self.__maxMoves: int = self.rows * self.cols
-        self._boardArray: np.ndarray = np.zeros(self.maxMoves)
+        self.__max_moves: int = self.rows * self.cols
+        self._board_array: np.ndarray = np.zeros(self.max_moves)
         # Top left position of board is represented by 0th element of 1d
         # matrix.
-        self._colCounters: np.ndarray = np.zeros(self.cols)
+        self._col_counters: np.ndarray = np.zeros(self.cols)
 
     @property
     def cols(self) -> int:
@@ -54,43 +50,43 @@ class Board:
         return self.__rows
 
     @property
-    def winCondition(self) -> int:
-        return self.__winCondition
+    def win_condition(self) -> int:
+        return self.__win_condition
 
     @property
-    def maxMoves(self) -> int:
-        return self.__maxMoves
+    def max_moves(self) -> int:
+        return self.__max_moves
 
-    def boardArray(self) -> np.ndarray:
-        return self._boardArray
+    def board_array(self) -> np.ndarray:
+        return self._board_array
 
-    def getBoardArrayElement(self, i: int) -> int:
-        return self._boardArray[i]
+    def get_board_element(self, i: int) -> int:
+        return self._board_array[i]
 
-    def setBoardArrayElement(self, i: int, val: int):
-        self._boardArray[i] = val
+    def set_board_element(self, i: int, val: int):
+        self._board_array[i] = val
 
-    def colCounters(self) -> np.ndarray:
-        return self._colCounters
+    def col_counters(self) -> np.ndarray:
+        return self._col_counters
 
-    def getColCounter(self, i: int) -> int:
-        return self._colCounters[i]
+    def get_col_counter(self, i: int) -> int:
+        return self._col_counters[i]
 
-    def fullColCounter(self, i: int) -> bool:
-        return self.getColCounter(i) == self.rows
+    def check_col_full(self, i: int) -> bool:
+        return self.get_col_counter(i) == self.rows
 
-    def updateColCounter(self, i: int, val: int):
-        self._colCounters[i] += val
+    def update_col_counter(self, i: int, val: int):
+        self._col_counters[i] += val
 
-    def getObservation(self) -> np.array:
+    def get_observation(self) -> np.array:
         """
         Method used to return the observation of the game state for RL agents to use when training/playing.
 
         :return: Numpy array of the current board and column counters.
         """
-        return np.array(list(self.boardArray()) + list(self.colCounters()))
+        return np.array(list(self.board_array()) + list(self.col_counters()))
 
-    def updateBoard(self, column: int, player: int):
+    def update_board(self, column: int, player: int):
         """
         Updates the board by placing a players counter in the specified column.
 
@@ -99,57 +95,55 @@ class Board:
         """
         # Construct the position of the new counter for the 1D board array
         # using column counters.
-        position = int(
-            ((self.rows - self.getColCounter(column) - 1) * self.cols) + column)
+        position = int(((self.rows - self.get_col_counter(column) - 1) * self.cols) + column)
 
-        self.setBoardArrayElement(position, player)
-        self.updateColCounter(column, 1)
+        self.set_board_element(position, player)
+        self.update_col_counter(column, 1)
 
-    def _check(self, position: int, player: int, runningTotal: int) -> int:
+    def _check(self, position: int, player: int, running_total: int) -> int:
         """
         Checks if counter is present in specific board position and what player's it is.
 
         :param position: Integer corresponding to position currently being inspected.
         :param player: Integer value representing player whose counters are currently being checked.
-        :param runningTotal: Integer for number of player's counters currently found in a row.
+        :param running_total: Integer for number of player's counters currently found in a row.
         :return: Updated value of runningTotal variable.
         """
-        posCounter = self.getBoardArrayElement(position)
-        if posCounter == player:
-            return runningTotal + 1
+        pos_counter = self.get_board_element(position)
+        if pos_counter == player:
+            return running_total + 1
         return 0
 
-    def _checkHorizontals(self, player: int, inARow: int = None) -> int:
+    def _checkHorizontals(self, player: int, line_len: int = None) -> int:
         """
         Checks all horizontal rows of the board to see how many times the specified number of counters in a row was met.
 
         :param player: Integer value representing player whose counters are currently being checked.
-        :param inARow: Integer for the number of counters in a row being looked for.
+        :param line_len: Integer for the number of counters in a row being looked for.
         :return: Integer for how many times the specified number of counters in a row were found.
         """
-        totalCount = 0
+        total_count = 0
         for i in range(self.rows):
-            # counter represents a running total for number of counters in a
-            # row, for each row.
+            # counter represents a running total for number of counters in a row, for each row.
             counter = 0
             for j in range(self.cols):
                 # position is constructed from iterators.
                 position = (i * self.cols) + j
                 counter = self._check(position, player, counter)
-                if counter == inARow:
-                    totalCount += 1
-        return totalCount
+                if counter == line_len:
+                    total_count += 1
+        return total_count
 
-    def _checkVerticals(self, player: int, inARow: int = None) -> int:
+    def _check_verticals(self, player: int, line_len: int = None) -> int:
         """
         Checks all vertical columns of the board to see how many times the specified number of counters in a row was
         met.
 
         :param player: Integer value representing player whose counters are currently being checked.
-        :param inARow: Integer for the number of counters in a row being looked for.
+        :param line_len: Integer for the number of counters in a row being looked for.
         :return: Integer for how many times the specified number of counters in a row were found.
         """
-        totalCount = 0
+        total_count = 0
         for i in range(self.cols):
             # counter represents a running total for number of counters in a
             # row, for each column.
@@ -158,124 +152,120 @@ class Board:
                 # position is constructed from iterators.
                 position = (j * self.cols) + i
                 counter = self._check(position, player, counter)
-                if counter == inARow:
-                    totalCount += 1
-        return totalCount
+                if counter == line_len:
+                    total_count += 1
+        return total_count
 
-    def _checkDiagonalsRL(self, player: int, inARow: int = None) -> int:
+    def _check_diagonals_RL(self, player: int, line_len: int = None) -> int:
         """
         Checks all possible diagonals, going from right to left, to see how many times the specified number of counters
         in a row was met.
 
         :param player: Integer value representing player whose counters are currently being checked.
-        :param inARow: Integer for the number of counters in a row being looked for.
+        :param line_len: Integer for the number of counters in a row being looked for.
         :return: Integer for how many times the specified number of counters in a row were found.
         """
-        totalCount = 0
+        total_count = 0
 
-        for i in range(self.cols - inARow, self.cols - 1):
+        for i in range(self.cols - line_len, self.cols - 1):
             # Iterating along the base (columns) of the board, where diagonal is large enough for number of counters in
             # a row being looked for.
             counter = 0
             for j in range(i + 1):
                 position = (j * self.cols) + i - j
                 counter = self._check(position, player, counter)
-                if counter == inARow:
-                    totalCount += 1
+                if counter == line_len:
+                    total_count += 1
 
-        for m in range(self.rows - inARow + 1):
+        for m in range(self.rows - line_len + 1):
             # Iterating along the sides of the board, where diagonal is large enough for number of counters in a row
             # being looked for.
             counter = 0
             for n in range(self.rows - m):
                 position = ((m + n + 1) * self.cols) - n - 1
                 counter = self._check(position, player, counter)
-                if counter == inARow:
-                    totalCount += 1
+                if counter == line_len:
+                    total_count += 1
 
-        return totalCount
+        return total_count
 
-    def _checkDiagonalsLR(self, player: int, inARow: int = None) -> int:
+    def _check_diagonals_LR(self, player: int, line_len: int = None) -> int:
         """
         Checks all possible diagonals, going from left to right, to see how many times the specified number of counters
         in a row was met.
 
         :param player: Integer value representing player whose counters are currently being checked.
-        :param inARow: Integer for the number of counters in a row being looked for.
+        :param line_len: Integer for the number of counters in a row being looked for.
         :return: Integer for how many times the specified number of counters in a row were found.
         """
-        totalCount = 0
+        total_count = 0
 
-        for i in range(1, self.cols - inARow + 1):
+        for i in range(1, self.cols - line_len + 1):
             # Iterating along the base (columns) of the board, where diagonal is large enough for number of counters in
             # a row being looked for.
             counter = 0
             for j in range(self.cols - i):
                 position = (j * self.cols) + i + j
                 counter = self._check(position, player, counter)
-                if counter == inARow:
-                    totalCount += 1
+                if counter == line_len:
+                    total_count += 1
 
-        for m in range(self.rows - inARow + 1):
+        for m in range(self.rows - line_len + 1):
             # Iterating along the sides of the board, where diagonal is large enough for number of counters in a row
             # being looked for.
             counter = 0
             for n in range(self.rows - m):
                 position = ((m + n) * self.cols) + n
                 counter = self._check(position, player, counter)
-                if counter == inARow:
-                    totalCount += 1
+                if counter == line_len:
+                    total_count += 1
 
-        return totalCount
+        return total_count
 
-    def _checkDiagonals(self, player: int, inARow: int) -> int:
+    def _check_diagonals(self, player: int, line_len: int) -> int:
         """
         Checks all possible diagonals in both directions, to see how many times the specified number of counters in a
         row was met.
 
         :param player: Integer value representing player whose counters are currently being checked.
-        :param inARow: Integer for the number of counters in a row being looked for.
+        :param line_len: Integer for the number of counters in a row being looked for.
         :return: Integer for how many times the specified number of counters in a row were found.
         """
-        return self._checkDiagonalsRL(
-            player, inARow) + self._checkDiagonalsLR(player, inARow)
+        return self._check_diagonals_RL(player, line_len) + self._check_diagonals_LR(player, line_len)
 
-    def checkXInARow(self, player: int, inARow: int = None) -> int:
+    def check_for_lines(self, player: int, line_len: int = None) -> int:
         """
         Checks entire board to see how many times the specified number of counters in a row was met.
 
         :param player: Integer value representing player whose counters are currently being checked.
-        :param inARow: Integer for the number of counters in a row being looked for.
+        :param line_len: Integer for the number of counters in a row being looked for.
         :return: Integer for how many times the specified number of counters in a row were found.
         """
-        if inARow is None:
-            # Default value for the number of counters in a row being looked
-            # for is the win condition.
-            inARow = self.__winCondition
+        if line_len is None:
+            # Default value for the number of counters in a row being looked for is the win condition.
+            line_len = self.__win_condition
 
-        return self._checkHorizontals(player, inARow) + self._checkVerticals(player, inARow
-                                                                             ) + self._checkDiagonals(player, inARow)
+        return self._checkHorizontals(player, line_len) + self._check_verticals(
+            player, line_len) + self._check_diagonals(player, line_len)
 
-    def printBoard(self, latestMove: int or None):
+    def print_board(self, latest_move: int or None):
         """
         Prints a view of the current game board to the console.
 
-        :param latestMove: Integer value indicating the last move made, so this can be indicated whilst printing to the
+        :param latest_move: Integer value indicating the last move made, so this can be indicated whilst printing to the
         console.
         """
-        # Print numerical label for each column of board at the top of the
-        # board.
+        # Print numerical label for each column of board at the top of the board.
         for j in range(self.cols):
             print((j + 1), end=' ')
 
-        if latestMove is None:
+        if latest_move is None:
             print('\n')
         else:
-            # If latest move is given, can print an arrow indicating in which
-            # column the latest counter was dropped.
+            # If latest move is given, can print an arrow indicating in which column the latest counter was dropped.
             print('\n', end='')
             for k in range(self.cols):
-                if k != latestMove:
+                if k != latest_move:
                     print(' ', end=' ')
                 else:
                     print('^', end=' ')
@@ -283,19 +273,19 @@ class Board:
 
         # Prints player 1 counters as yellow 'o's and player 2 counters as red 'x's.
         # Empty positions are marked with a dash.
-        for i in range(self.maxMoves):
-            if self.getBoardArrayElement(i) == 1:
+        for i in range(self.max_moves):
+            if self.get_board_element(i) == 1:
                 print(f"{Fore.YELLOW}o{Style.RESET_ALL}", end=' ')
-            elif self.getBoardArrayElement(i) == 2:
+            elif self.get_board_element(i) == 2:
                 print(f"{Fore.RED}x{Style.RESET_ALL}", end=' ')
             else:
                 print('-', end=' ')
             if (i + 1) % self.cols == 0:
                 print("\n", end='')
 
-    def resetBoard(self):
+    def reset_board(self):
         """
         Resets all information in the class relevant to a game, so that the board can be reused.
         """
-        self._boardArray = np.zeros(self.maxMoves)
-        self._colCounters = np.zeros(self.cols)
+        self._board_array = np.zeros(self.max_moves)
+        self._col_counters = np.zeros(self.cols)
