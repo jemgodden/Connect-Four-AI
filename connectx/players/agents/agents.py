@@ -1,8 +1,9 @@
-from connectx.players.players import Player
-from connectx.game.board import Board
-
+import logging
 import time
 import random
+
+from connectx.players.players import Player
+from connectx.game.board import Board
 
 from treelib import Tree
 import copy
@@ -161,7 +162,9 @@ class LookAheadAgent(Agent):
         tree = Tree()
         tree.create_node(0, '')
 
+        logging.info(f"LookAheadAgent creating look-ahead tree...")
         self._look_ahead(tree, self.board, '', 0, 0)
+        logging.info(f"LookAheadAgent finished creating look-ahead tree.")
 
         return {leaf.identifier: leaf.tag for leaf in tree.leaves()}
 
