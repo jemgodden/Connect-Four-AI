@@ -1,4 +1,5 @@
 import warnings
+import logging
 from colorama import Fore, Style
 import numpy as np
 
@@ -37,8 +38,7 @@ class Board:
 
         self.__max_moves: int = self.rows * self.cols
         self._board_array: np.ndarray = np.zeros(self.max_moves)
-        # Top left position of board is represented by 0th element of 1d
-        # matrix.
+        # Top left position of board is represented by 0th element of 1d matrix.
         self._col_counters: np.ndarray = np.zeros(self.cols)
 
     @property
@@ -93,12 +93,13 @@ class Board:
         :param column: Integer value for column in which the counter is being dropped.
         :param player: Integer value for player whose counter is being placed.
         """
-        # Construct the position of the new counter for the 1D board array
-        # using column counters.
+        # Construct the position of the new counter for the 1D board array using column counters.
         position = int(((self.rows - self.get_col_counter(column) - 1) * self.cols) + column)
 
         self.set_board_element(position, player)
         self.update_col_counter(column, 1)
+
+        logging.info(f"Player {player} put a counter in column {column + 1}.")
 
     def _check(self, position: int, player: int, running_total: int) -> int:
         """
@@ -245,8 +246,11 @@ class Board:
             # Default value for the number of counters in a row being looked for is the win condition.
             line_len = self.__win_condition
 
-        return self._checkHorizontals(player, line_len) + self._check_verticals(
+        num_lines_found = self._checkHorizontals(player, line_len) + self._check_verticals(
             player, line_len) + self._check_diagonals(player, line_len)
+
+        logging.info(f"{num_lines_found} lines of {line_len} counters in a row found.")
+        return num_lines_found
 
     def print_board(self, latest_move: int or None):
         """
@@ -289,3 +293,4 @@ class Board:
         """
         self._board_array = np.zeros(self.max_moves)
         self._col_counters = np.zeros(self.cols)
+        logging.info(f"The board has been reset.")

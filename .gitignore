@@ -2,6 +2,8 @@
 __pycache__/
 venv/
 
+connectx/logs/
+
 connectx/players/agents/models/
 connectx/players/agents/training-logs/
 
