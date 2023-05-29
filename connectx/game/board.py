@@ -78,14 +78,6 @@ class Board:
     def update_col_counter(self, i: int, val: int):
         self._col_counters[i] += val
 
-    def get_observation(self) -> np.array:
-        """
-        Method used to return the observation of the game state for RL agents to use when training/playing.
-
-        :return: Numpy array of the current board and column counters.
-        """
-        return np.array(list(self.board_array()) + list(self.col_counters()))
-
     def update_board(self, column: int, player: int):
         """
         Updates the board by placing a players counter in the specified column.

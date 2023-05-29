@@ -1,6 +1,6 @@
 import os
 
-from connectx.env.connectXEnv import ConnectXEnv
+from connectx.env.connect_x_env import ConnectXEnv
 from stable_baselines3 import PPO, A2C
 
 
