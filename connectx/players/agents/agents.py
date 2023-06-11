@@ -1,4 +1,6 @@
 import logging
+from typing import Tuple, Dict
+
 import time
 import random
 
@@ -81,7 +83,7 @@ class LookAheadAgent(Agent):
         reward += board.check_for_lines(player, board.win_condition) * (board.win_condition ** 10)
         return reward
 
-    def _try_action(self, action: int, player: int, board: Board) -> tuple[float, Board]:
+    def _try_action(self, action: int, player: int, board: Board) -> Tuple[float, Board]:
         """
         Allows a player's potential action to be done and reward found.
 
@@ -100,7 +102,7 @@ class LookAheadAgent(Agent):
         # Track all possible action, reward pair in dictionary.
         return self._calculate_rewards(board_copy, player), board_copy
 
-    def _opposition_optimal_action(self, board: Board) -> tuple[int, float]:
+    def _opposition_optimal_action(self, board: Board) -> Tuple[int, float]:
         """
         Finds the opponent's best turn, using the agent's heuristic, and takes it.
 
@@ -151,7 +153,7 @@ class LookAheadAgent(Agent):
                 # From this node, look ahead another step.
                 self._look_ahead(tree, board_copy, nid, step_reward, step + 1)
 
-    def _look_ahead_N_steps(self) -> dict[str: int]:
+    def _look_ahead_N_steps(self) -> Dict[str, int]:
         """
         Initialises and constructs the look-ahead tree from the agent's current turn's board state.
 
@@ -169,7 +171,7 @@ class LookAheadAgent(Agent):
         return {leaf.identifier: leaf.tag for leaf in tree.leaves()}
 
     @staticmethod
-    def _choose_optimal_action(all_actions: dict[str: int]) -> tuple[int, float]:
+    def _choose_optimal_action(all_actions: Dict[str, int]) -> Tuple[int, float]:
         """
         Filter all possible actions down to equally optimal actions.
 

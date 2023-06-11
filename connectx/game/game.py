@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from connectx.game.board import Board
 from connectx.players.players import Player, UserPlayer
@@ -51,7 +52,7 @@ class Game:
         if player2 is not None and not isinstance(player2, str):
             raise TypeError("player2 must be a string or None.")
 
-        self.__players: list[Agent or None] = [
+        self.__players: List[Agent or None] = [
             self._initialise_player(player1, 1),
             self._initialise_player(player2, 2)
         ]
@@ -61,7 +62,7 @@ class Game:
         logging.info(f"Player 1 is a {type(self.player(1))}, and player 2 is a {type(self.player(2))}")
 
     @property
-    def players(self) -> list[Player]:
+    def players(self) -> List[Player]:
         return self.__players
 
     def player(self, i: int) -> Player:
