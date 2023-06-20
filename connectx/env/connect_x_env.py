@@ -34,6 +34,8 @@ class ConnectXEnv(py_environment.PyEnvironment):
         """
         super().__init__()
 
+        self.verbose = False
+
         self.board = Board(
             rows=rows,
             cols=cols,
@@ -168,7 +170,7 @@ class ConnectXEnv(py_environment.PyEnvironment):
         self._episode_ended = False
         self._assign_player_nums()
 
-        if self.agent_player_num != 1:
+        if self._agent_player_num != 1:
             self._opponent_turn()
 
         return ts.restart(self.board.board_array())
